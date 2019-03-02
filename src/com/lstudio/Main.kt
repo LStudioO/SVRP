@@ -16,7 +16,7 @@ object Main {
         when (decision) {
             1 -> {
                 val taskReader = TaskReader()
-                taskReader.readTask("D:\\Study\\Diploma\\Project\\tasks\\test_task\\test_task_data.txt")
+                taskReader.readTask("tasks\\test_task\\test_task_data.txt")
                 System.out.println(
                     "Task name: ${taskReader.name} \n" +
                             "City count: ${taskReader.cityCount}\n" +
