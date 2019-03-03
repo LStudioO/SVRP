@@ -22,7 +22,12 @@ object Main {
                             "City count: ${taskReader.cityCount}\n" +
                             "Vehicle сount: ${taskReader.vehicleCount}"
                 )
-                val antColony = AntColonyOptimization(21)
+
+                val weight = taskReader.weigths ?: return
+                val endDepots = taskReader.endDepots ?: return
+                val startDepots = taskReader.startDepots ?: return
+
+                val antColony = AntColonyOptimization(weight, startDepots, endDepots)
                 antColony.startAntOptimization()
             }
             2 -> {

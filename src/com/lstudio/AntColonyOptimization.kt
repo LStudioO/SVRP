@@ -1,22 +1,31 @@
 package com.lstudio
+
 import java.util.*
 import java.util.stream.IntStream
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
-class AntColonyOptimization(noOfCities: Int) {
+class AntColonyOptimization(
+    distanceMatrix: Array<DoubleArray>,
+    private val startDepots: IntArray,
+    private val endDepots: HashMap<Int, Int>
+) {
 
     private val c = 1.0
     private val alpha = 1.0
     private val beta = 5.0
     private val evaporation = 0.5
     private val Q = 500.0
-    private val antFactor = 0.8
+    //private val antFactor = 0.8
     private val randomFactor = 0.01
 
     private val maxIterations = 1000
 
     private val numberOfCities: Int
     private val numberOfAnts: Int
-    private val graph: Array<DoubleArray>
+    private val numberOfStartDepots: Int
+    private val numberOfEndDepots: Int
+    private val graph: Array<DoubleArray> = distanceMatrix
     private val trails: Array<DoubleArray>
     private val ants = ArrayList<Ant>()
     private val random = Random()
@@ -26,11 +35,15 @@ class AntColonyOptimization(noOfCities: Int) {
 
     private var bestTourOrder: IntArray? = null
     private var bestTourLength: Double = 0.toDouble()
+    private var candidateList = ArrayList<Int>()
 
     init {
-        graph = generateRandomMatrix(noOfCities)
         numberOfCities = graph.size
-        numberOfAnts = (numberOfCities * antFactor).toInt()
+        candidateList.addAll((0 until graph.size))
+        numberOfAnts = startDepots.size
+        //numberOfAnts = (numberOfCities * antFactor).toInt()
+        numberOfStartDepots = startDepots.size
+        numberOfEndDepots = endDepots.keys.size
 
         trails = Array(numberOfCities) { DoubleArray(numberOfCities) }
         probabilities = DoubleArray(numberOfCities)
@@ -39,27 +52,13 @@ class AntColonyOptimization(noOfCities: Int) {
     }
 
     /**
-     * Generate initial solution
-     */
-    fun generateRandomMatrix(n: Int): Array<DoubleArray> {
-        val randomMatrix = Array(n) { DoubleArray(n) }
-        IntStream.range(0, n)
-            .forEach { i ->
-                IntStream.range(0, n)
-                    .forEach { j -> randomMatrix[i][j] = Math.abs(random.nextInt(100) + 1).toDouble() }
-            }
-        return randomMatrix
-    }
-
-    /**
      * Perform ant optimization
      */
     fun startAntOptimization() {
-        IntStream.rangeClosed(1, 3)
-            .forEach { i ->
-                println("Attempt #$i")
-                solve()
-            }
+        for (i in 1..1) {
+            println("Attempt #$i")
+            solve()
+        }
     }
 
     /**
@@ -68,12 +67,13 @@ class AntColonyOptimization(noOfCities: Int) {
     fun solve(): IntArray {
         setupAnts()
         clearTrails()
-        IntStream.range(0, maxIterations)
-            .forEach { i ->
-                moveAnts()
-                updateTrails()
-                updateBest()
-            }
+
+       // for (i in 0 until maxIterations) {
+            moveAnts()
+            updateTrails()
+            updateBest()
+       // }
+
         println("Best tour length: " + (bestTourLength - numberOfCities))
         println("Best tour order: " + Arrays.toString(bestTourOrder))
         return bestTourOrder!!.clone()
@@ -83,47 +83,44 @@ class AntColonyOptimization(noOfCities: Int) {
      * Prepare ants for the simulation
      */
     private fun setupAnts() {
-        IntStream.range(0, numberOfAnts)
-            .forEach { i ->
-                ants.forEach { ant ->
-                    ant.clear()
-                    ant.visitCity(-1, random.nextInt(numberOfCities))
-                }
-            }
-        currentIndex = 0
+        for (i in 0 until numberOfStartDepots) {
+            val ant = ants[i]
+            ant.clear()
+            val city = startDepots[i]
+            ant.visitCity(city)
+            candidateList.remove(city)
+        }
     }
 
     /**
      * At each iteration, move ants
      */
     private fun moveAnts() {
-        IntStream.range(currentIndex, numberOfCities - 1)
-            .forEach { i ->
-                ants.forEach { ant -> ant.visitCity(currentIndex, selectNextCity(ant)) }
-                currentIndex++
-            }
+        for (i in (0 until numberOfAnts).shuffled()) {
+            val ant = ants[i]
+            val city = selectNextCity(ant)
+            ant.visitCity(city)
+            candidateList.remove(city)
+        }
     }
 
     /**
      * Select next city for each ant
      */
     private fun selectNextCity(ant: Ant): Int {
-        val t = random.nextInt(numberOfCities - currentIndex)
+        val t = candidateList.random()
         if (random.nextDouble() < randomFactor) {
-            val cityIndex = IntStream.range(0, numberOfCities)
-                .filter { i -> i == t && !ant.visited(i) }
-                .findFirst()
-            if (cityIndex.isPresent) {
-                return cityIndex.asInt
-            }
+            if (!ant.visited(t))
+                return t
         }
         calculateProbabilities(ant)
         val r = random.nextDouble()
         var total = 0.0
-        for (i in 0 until numberOfCities) {
-            total += probabilities[i]
+        for (i in 0 until candidateList.size) {
+            val index = candidateList[i]
+            total += probabilities[index]
             if (total >= r) {
-                return i
+                return index
             }
         }
 
@@ -134,19 +131,21 @@ class AntColonyOptimization(noOfCities: Int) {
      * Calculate the next city picks probabilites
      */
     fun calculateProbabilities(ant: Ant) {
-        val i = ant.trail[currentIndex]
+        val i = ant.currentCity()
         var pheromone = 0.0
-        for (l in 0 until numberOfCities) {
-            if (!ant.visited(l)) {
-                pheromone += Math.pow(trails[i][l], alpha) * Math.pow(1.0 / graph[i][l], beta)
+        for (l in 0 until candidateList.size) {
+            val index = candidateList[l]
+            if (!ant.visited(index)) {
+                pheromone += Math.pow(trails[i][index], alpha) * Math.pow(1.0 / graph[i][index], beta)
             }
         }
-        for (j in 0 until numberOfCities) {
-            if (ant.visited(j)) {
-                probabilities[j] = 0.0
+        for (k in 0 until candidateList.size) {
+            val index = candidateList[k]
+            if (ant.visited(index)) {
+                probabilities[index] = 0.0
             } else {
-                val numerator = Math.pow(trails[i][j], alpha) * Math.pow(1.0 / graph[i][j], beta)
-                probabilities[j] = numerator / pheromone
+                val numerator = Math.pow(trails[i][index], alpha) * Math.pow(1.0 / graph[i][index], beta)
+                probabilities[index] = numerator / pheromone
             }
         }
     }
@@ -190,11 +189,10 @@ class AntColonyOptimization(noOfCities: Int) {
      * Clear trails after simulation
      */
     private fun clearTrails() {
-        IntStream.range(0, numberOfCities)
-            .forEach { i ->
-                IntStream.range(0, numberOfCities)
-                    .forEach { j -> trails[i][j] = c }
+        for (i in 0 until numberOfCities) {
+            for (j in 0 until numberOfCities) {
+                trails[i][j] = c
             }
+        }
     }
-
 }
