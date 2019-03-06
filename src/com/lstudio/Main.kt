@@ -25,6 +25,8 @@ object Main {
                             "Vehicle сount: ${taskReader.vehicleCount}"
                 )
 
+
+
                 val weight = taskReader.weigths ?: return
                 val endDepots = taskReader.endDepots ?: return
                 val startDepots = taskReader.startDepots ?: return
