@@ -1,4 +1,4 @@
-package com.lstudio
+package com.lstudio.ant_colony
 
 import java.lang.Exception
 

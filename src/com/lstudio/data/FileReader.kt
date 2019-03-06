@@ -1,4 +1,4 @@
-package com.lstudio
+package com.lstudio.data
 
 import java.io.File
 

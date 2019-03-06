@@ -1,5 +1,6 @@
-package com.lstudio
+package com.lstudio.ant_colony
 
+import com.lstudio.utils.random
 import java.util.*
 import java.util.stream.IntStream
 import kotlin.collections.ArrayList
