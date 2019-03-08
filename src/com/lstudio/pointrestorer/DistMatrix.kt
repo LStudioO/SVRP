@@ -1,7 +1,7 @@
-package com.lstudio.point_restorer
+package com.lstudio.pointrestorer
 
-import com.lstudio.point_restorer.primitives.Circle
-import com.lstudio.point_restorer.primitives.Point
+import com.lstudio.pointrestorer.primitives.Circle
+import com.lstudio.pointrestorer.primitives.Point
 import java.util.Arrays
 import java.util.LinkedList
 

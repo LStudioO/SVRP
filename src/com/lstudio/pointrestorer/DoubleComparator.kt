@@ -1,4 +1,4 @@
-package com.lstudio.point_restorer
+package com.lstudio.pointrestorer
 
 class DoubleComparator
     (

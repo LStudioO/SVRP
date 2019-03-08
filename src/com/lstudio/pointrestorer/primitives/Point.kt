@@ -1,5 +1,5 @@
-package com.lstudio.point_restorer.primitives
-import com.lstudio.point_restorer.ComparatorContext
+package com.lstudio.pointrestorer.primitives
+import com.lstudio.pointrestorer.ComparatorContext
 
 class Point
 

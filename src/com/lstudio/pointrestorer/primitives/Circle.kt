@@ -1,6 +1,6 @@
-package com.lstudio.point_restorer.primitives
+package com.lstudio.pointrestorer.primitives
 
-import com.lstudio.point_restorer.ComparatorContext
+import com.lstudio.pointrestorer.ComparatorContext
 
 class Circle(var center: Point?, var radius: Double) {
 

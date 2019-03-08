@@ -1,5 +1,8 @@
-package com.lstudio.ant_colony
+package com.lstudio.antcolony
 
+import com.lstudio.pointrestorer.DistMatrix
+import com.lstudio.pointrestorer.primitives.Point
+import com.lstudio.ui.Visualizer
 import com.lstudio.utils.random
 import java.util.*
 import java.util.stream.IntStream
@@ -17,23 +20,17 @@ class AntColonyOptimization(
     private val beta = 5.0
     private val evaporation = 0.5
     private val Q = 500.0
-    //private val antFactor = 0.8
     private val randomFactor = 0.01
-
-    private val maxIterations = 1000
-
     private val numberOfCities: Int
     private val numberOfAnts: Int
     private val numberOfStartDepots: Int
     private val numberOfEndDepots: Int
     private val graph: Array<DoubleArray> = distanceMatrix
+    private lateinit var cities: Array<City>
     private val trails: Array<DoubleArray>
     private val ants = ArrayList<Ant>()
     private val random = Random()
     private val probabilities: DoubleArray
-
-    private var currentIndex: Int = 0
-
     private var bestTourOrder: IntArray? = null
     private var bestTourLength: Double = 0.toDouble()
     private var candidateList = ArrayList<Int>()
@@ -42,7 +39,6 @@ class AntColonyOptimization(
         numberOfCities = graph.size
         candidateList.addAll((0 until graph.size))
         numberOfAnts = startDepots.size
-        //numberOfAnts = (numberOfCities * antFactor).toInt()
         numberOfStartDepots = startDepots.size
         numberOfEndDepots = endDepots.keys.size
 
@@ -50,6 +46,26 @@ class AntColonyOptimization(
         probabilities = DoubleArray(numberOfCities)
         IntStream.range(0, numberOfAnts)
             .forEach { ants.add(Ant(numberOfCities)) }
+
+        val dMatrix = DistMatrix(graph)
+        val points = dMatrix.restorePoints()
+
+        parseCities(points!!)
+
+        val visualizer = Visualizer(cities)
+        visualizer.show()
+    }
+
+    private fun parseCities(points: Array<Point>) {
+        cities = Array(numberOfCities) {
+            val isStartDepot = startDepots.contains(it)
+            var capacity = 0
+            if (endDepots.containsKey(it))
+                capacity = endDepots[it]!!
+            City(it, isStartDepot, capacity).apply {
+                this.point = points[it]
+            }
+        }
     }
 
     /**
@@ -69,11 +85,9 @@ class AntColonyOptimization(
         setupAnts()
         clearTrails()
 
-       // for (i in 0 until maxIterations) {
-            moveAnts()
-            updateTrails()
-            updateBest()
-       // }
+        moveAnts()
+        updateTrails()
+        updateBest()
 
         println("Best tour length: " + (bestTourLength - numberOfCities))
         println("Best tour order: " + Arrays.toString(bestTourOrder))
