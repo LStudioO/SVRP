@@ -2,7 +2,7 @@ package com.lstudio.antcolony
 
 import java.lang.Exception
 
-class Ant(private var trailSize: Int) {
+class Ant(private var trailSize: Int, var capacity : Int) {
     var trail: IntArray = IntArray(trailSize)
     var visited: BooleanArray = BooleanArray(trailSize)
     var currentIndex = 0

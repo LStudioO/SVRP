@@ -14,7 +14,6 @@ class AntColonyOptimization(
     private val startDepots: IntArray,
     private val endDepots: HashMap<Int, Int>
 ) {
-
     private val c = 1.0
     private val alpha = 1.0
     private val beta = 5.0
@@ -34,6 +33,8 @@ class AntColonyOptimization(
     private var bestTourOrder: IntArray? = null
     private var bestTourLength: Double = 0.toDouble()
     private var candidateList = ArrayList<Int>()
+    private var antCapacity = 200
+    private var iterations = 10
 
     init {
         numberOfCities = graph.size
@@ -45,7 +46,7 @@ class AntColonyOptimization(
         trails = Array(numberOfCities) { DoubleArray(numberOfCities) }
         probabilities = DoubleArray(numberOfCities)
         IntStream.range(0, numberOfAnts)
-            .forEach { ants.add(Ant(numberOfCities)) }
+            .forEach { ants.add(Ant(numberOfCities, antCapacity)) }
 
         val dMatrix = DistMatrix(graph)
         val points = dMatrix.restorePoints()
@@ -84,11 +85,10 @@ class AntColonyOptimization(
     fun solve(): IntArray {
         setupAnts()
         clearTrails()
-
-        moveAnts()
-        updateTrails()
-        updateBest()
-
+        for (i in 0 until iterations) {
+            moveAnts()
+            updateTrails()
+        }
         println("Best tour length: " + (bestTourLength - numberOfCities))
         println("Best tour order: " + Arrays.toString(bestTourOrder))
         return bestTourOrder!!.clone()
@@ -108,14 +108,18 @@ class AntColonyOptimization(
     }
 
     /**
-     * At each iteration, move ants
+     * At each iteration, move ants in random order
      */
     private fun moveAnts() {
-        for (i in (0 until numberOfAnts).shuffled()) {
-            val ant = ants[i]
-            val city = selectNextCity(ant)
-            ant.visitCity(city)
-            candidateList.remove(city)
+        if (ants.any { !it.isRouteCompleted }) {
+            for (i in (0 until numberOfAnts).shuffled()) {
+                val ant = ants[i]
+                if (ant.isRouteCompleted)
+                    continue
+                val city = selectNextCity(ant)
+                ant.visitCity(city)
+                candidateList.remove(city)
+            }
         }
     }
 
@@ -209,5 +213,32 @@ class AntColonyOptimization(
                 trails[i][j] = c
             }
         }
+    }
+
+    /**
+     * Get distance between 2 cities
+     */
+    private fun calculateDistance(city1: City, city2: City): Double {
+        return graph[city1.index][city2.index]
+    }
+
+    /**
+     * Get distance between 2 cities by its indices
+     */
+    private fun calculateDistance(cityIndex1: Int, cityIndex2: Int): Double {
+        return graph[cityIndex1][cityIndex2]
+    }
+
+    /**
+     * Calculate distance from specified city to closest available end depot
+     */
+    private fun calculateDistanceToClosestEndDepot(cityIndex: Int): Double {
+        val possibleDepots = ArrayList<Int>()
+        for (i in candidateList) {
+            if (cities[i].type == CityType.END_DEPOT)
+                possibleDepots.add(i)
+        }
+        val depotIndex = possibleDepots.minBy { graph[cityIndex][it] } ?: return -1.0
+        return graph[cityIndex][depotIndex]
     }
 }
