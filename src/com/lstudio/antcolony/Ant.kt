@@ -6,6 +6,7 @@ class Ant(private var trailSize: Int) {
     var trail: IntArray = IntArray(trailSize)
     var visited: BooleanArray = BooleanArray(trailSize)
     var currentIndex = 0
+    var isRouteCompleted = false
 
     fun visitCity(city: Int) {
         trail[currentIndex] = city
@@ -34,5 +35,8 @@ class Ant(private var trailSize: Int) {
     fun clear() {
         for (i in 0 until trailSize)
             visited[i] = false
+
+        currentIndex = 0
+        isRouteCompleted = false
     }
 }
