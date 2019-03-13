@@ -80,7 +80,7 @@ class AntColonyOptimization(
     /**
      * Method to run the main logic
      */
-    fun solve(): Int {
+    fun solve() {
         setupAnts()
         clearTrails()
         // for (i in 0 until iterations) {
@@ -88,9 +88,7 @@ class AntColonyOptimization(
         updateTrails()
         //}
         printCurrentSolution()
-        updateBest()
-       // return bestTourOrder!!.clone()
-        
+        printResult()
     }
 
     private fun printCurrentSolution() {
@@ -118,11 +116,13 @@ class AntColonyOptimization(
      * At each iteration, move ants in random order
      */
     private fun moveAnts() {
-        if (ants.any { !it.isRouteCompleted }) {
+        while (ants.any { !it.isRouteCompleted }) {
             for (i in (0 until numberOfAnts).shuffled()) {
                 val ant = ants[i]
                 if (ant.isRouteCompleted)
                     continue
+                if (candidateList.size == 0)
+                    return
                 val city = selectNextCity(ant)
                 ant.visitCity(city)
                 val currentCity = cities[city]
@@ -201,20 +201,21 @@ class AntColonyOptimization(
     }
 
     /**
-     * Update the best solution
+     * Get current route length
      */
-    private fun updateBest() {
-        if (bestTourOrder == null) {
-            bestTourOrder = ants[0].trail
-            bestTourLength = ants[0]
-                .trailLength(graph)
-        }
+    private fun getCurrentLength() : Double {
+        var length = 0.0
         for (a in ants) {
-            if (a.trailLength(graph) < bestTourLength) {
-                bestTourLength = a.trailLength(graph)
-                bestTourOrder = a.trail.clone()
-            }
+            length += a.trailLength(graph)
         }
+        return length
+    }
+
+    /**
+     * Print current solution
+     */
+    private fun printResult() {
+        println("Length: ${getCurrentLength()}")
     }
 
     /**
