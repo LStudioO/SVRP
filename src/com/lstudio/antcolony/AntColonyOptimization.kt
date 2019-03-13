@@ -32,7 +32,7 @@ class AntColonyOptimization(
     private val probabilities: DoubleArray
     private var candidateList = ArrayList<Int>()
     private var antCapacity = 200
-    private var iterations = 10
+    private var iterations = 100
 
     init {
         numberOfCities = graph.size
@@ -51,8 +51,8 @@ class AntColonyOptimization(
 
         parseCities(points!!)
 
-        val visualizer = Visualizer(cities)
-        visualizer.show()
+//        val visualizer = Visualizer(cities)
+//        visualizer.show()
     }
 
     private fun parseCities(points: Array<Point>) {
@@ -83,12 +83,24 @@ class AntColonyOptimization(
     fun solve() {
         setupAnts()
         clearTrails()
-        // for (i in 0 until iterations) {
-        moveAnts()
-        updateTrails()
-        //}
-        printCurrentSolution()
-        printResult()
+        for (i in 0 until iterations) {
+            resetAnts()
+            moveAnts()
+            updateTrails()
+            printCurrentSolution()
+            printResult()
+        }
+        //printCurrentSolution()
+        //printResult()
+    }
+
+    private fun resetAnts() {
+        candidateList.clear()
+        candidateList.addAll((0 until graph.size))
+        cities.forEach {
+            it.clear()
+        }
+        setupAnts()
     }
 
     private fun printCurrentSolution() {
@@ -124,9 +136,16 @@ class AntColonyOptimization(
                 if (candidateList.size == 0)
                     return
                 val city = selectNextCity(ant)
-                ant.visitCity(city)
                 val currentCity = cities[city]
+
+                if (ants.count { !it.isRouteCompleted } == 1 && candidateList.size > 1) {
+                    if (currentCity.type == CityType.END_DEPOT) {
+                        continue
+                    }
+                }
+                ant.visitCity(city)
                 if (currentCity.type == CityType.END_DEPOT) {
+                    ant.isRouteCompleted = true
                     currentCity.availableCapacity--
                     if (currentCity.availableCapacity == 0)
                         candidateList.remove(city)
@@ -203,7 +222,7 @@ class AntColonyOptimization(
     /**
      * Get current route length
      */
-    private fun getCurrentLength() : Double {
+    private fun getCurrentLength(): Double {
         var length = 0.0
         for (a in ants) {
             length += a.trailLength(graph)
