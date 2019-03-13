@@ -2,7 +2,7 @@ package com.lstudio.antcolony
 
 import java.lang.Exception
 
-class Ant(private var trailSize: Int, var capacity : Int) {
+class Ant(private var trailSize: Int, var capacity: Int) {
     var trail: IntArray = IntArray(trailSize)
     var visited: BooleanArray = BooleanArray(trailSize)
     var currentIndex = 0
@@ -30,6 +30,14 @@ class Ant(private var trailSize: Int, var capacity : Int) {
             length += graph[trail[i]][trail[i + 1]]
         }
         return length
+    }
+
+    fun printTrail() {
+        for (i in 0 until currentIndex - 1)
+        {
+            print("${trail[i]} -> ")
+        }
+        println("${trail[currentIndex - 1]}")
     }
 
     fun clear() {

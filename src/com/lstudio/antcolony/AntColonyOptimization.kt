@@ -30,8 +30,6 @@ class AntColonyOptimization(
     private val ants = ArrayList<Ant>()
     private val random = Random()
     private val probabilities: DoubleArray
-    private var bestTourOrder: IntArray? = null
-    private var bestTourLength: Double = 0.toDouble()
     private var candidateList = ArrayList<Int>()
     private var antCapacity = 200
     private var iterations = 10
@@ -80,18 +78,27 @@ class AntColonyOptimization(
     }
 
     /**
-     * Use this method to run the main logic
+     * Method to run the main logic
      */
-    fun solve(): IntArray {
+    fun solve(): Int {
         setupAnts()
         clearTrails()
-        for (i in 0 until iterations) {
-            moveAnts()
-            updateTrails()
+        // for (i in 0 until iterations) {
+        moveAnts()
+        updateTrails()
+        //}
+        printCurrentSolution()
+        updateBest()
+       // return bestTourOrder!!.clone()
+        
+    }
+
+    private fun printCurrentSolution() {
+        println("Current solution:")
+        for (i in 0 until ants.size) {
+            println("Ant #${i + 1}:")
+            ants[i].printTrail()
         }
-        println("Best tour length: " + (bestTourLength - numberOfCities))
-        println("Best tour order: " + Arrays.toString(bestTourOrder))
-        return bestTourOrder!!.clone()
     }
 
     /**
@@ -118,7 +125,13 @@ class AntColonyOptimization(
                     continue
                 val city = selectNextCity(ant)
                 ant.visitCity(city)
-                candidateList.remove(city)
+                val currentCity = cities[city]
+                if (currentCity.type == CityType.END_DEPOT) {
+                    currentCity.availableCapacity--
+                    if (currentCity.availableCapacity == 0)
+                        candidateList.remove(city)
+                } else
+                    candidateList.remove(city)
             }
         }
     }

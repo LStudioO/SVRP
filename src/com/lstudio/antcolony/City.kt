@@ -16,5 +16,10 @@ class City(val index: Int, private val isStartDepot: Boolean, val capacity: Int)
             return CityType.CUSTOMER
         }
 
+    var availableCapacity = capacity
     var point: Point? = null
+
+    fun clear() {
+        availableCapacity = capacity
+    }
 }
