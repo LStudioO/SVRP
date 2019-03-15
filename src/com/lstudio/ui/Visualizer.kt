@@ -1,7 +1,7 @@
 package com.lstudio.ui
 
-import com.lstudio.antcolony.City
-import com.lstudio.antcolony.CityType
+import com.lstudio.algorithms.antcolony.City
+import com.lstudio.algorithms.antcolony.CityType
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Graphics

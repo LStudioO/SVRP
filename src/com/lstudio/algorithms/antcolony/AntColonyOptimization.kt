@@ -1,8 +1,7 @@
-package com.lstudio.antcolony
+package com.lstudio.algorithms.antcolony
 
 import com.lstudio.pointrestorer.DistMatrix
 import com.lstudio.pointrestorer.primitives.Point
-import com.lstudio.ui.Visualizer
 import com.lstudio.utils.random
 import java.util.*
 import java.util.stream.IntStream
@@ -18,7 +17,7 @@ class AntColonyOptimization(
     private val alpha = 1.0
     private val beta = 5.0
     private val evaporation = 0.5
-    private val Q = 500.0
+    private val Q = 1.0
     private val randomFactor = 0.01
     private val numberOfCities: Int
     private val numberOfAnts: Int
