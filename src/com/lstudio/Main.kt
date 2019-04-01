@@ -1,7 +1,7 @@
 package com.lstudio
 
 import com.lstudio.algorithms.antcolony.AntColonyOptimization
-import com.lstudio.algorithms.ls.LocalSearch
+import com.lstudio.algorithms.ls.TabuSearchSolver
 import com.lstudio.data.TaskReader
 import java.util.*
 
@@ -28,15 +28,16 @@ object Main {
         val endDepots = taskReader.endDepots ?: return
         val startDepots = taskReader.startDepots ?: return
 
-        val decision = 1
+        val decision = 2
         when (decision) {
             1 -> {
                 val antColony = AntColonyOptimization(weight, startDepots, endDepots)
                 antColony.startAntOptimization()
             }
             2 -> {
-                val localSearch = LocalSearch(weight, startDepots, endDepots)
-                localSearch.startOptimization()
+                val tabuHorizon = 100
+                val localSearch = TabuSearchSolver(tabuHorizon, weight, startDepots, endDepots, 200)
+                localSearch.solve()
             }
             3 -> {
                 println("Not implemented")

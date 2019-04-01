@@ -2,6 +2,7 @@ package com.lstudio.algorithms.antcolony
 
 import com.lstudio.pointrestorer.DistMatrix
 import com.lstudio.pointrestorer.primitives.Point
+import com.lstudio.ui.Visualizer
 import com.lstudio.utils.random
 import java.util.*
 import java.util.stream.IntStream
@@ -50,8 +51,8 @@ class AntColonyOptimization(
 
         parseCities(points!!)
 
-//        val visualizer = Visualizer(cities)
-//        visualizer.show()
+        val visualizer = Visualizer(cities)
+        visualizer.show()
     }
 
     private fun parseCities(points: Array<Point>) {
