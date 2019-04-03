@@ -18,22 +18,12 @@ class TabuSearchSolver(
 
     init {
         val vehicleCapacity = 1000
-
-        var endDepotsCapacity = 0
-        for (value in endDepots.values) {
-            endDepotsCapacity += value
-        }
-
-        // val nodesCount = distances.size - endDepots.size + endDepotsCapacity
-
-        // create solution using greedy algorithm
         val greedySolver = GreedySolver(
             startDepots, endDepots,
             distances, vehicleCapacity
         )
         val result = greedySolver.solve()
         result.print()
-
         this.vehicles = greedySolver.vehicles
         this.cost = greedySolver.cost
 
@@ -47,47 +37,48 @@ class TabuSearchSolver(
         var routesFrom: ArrayList<Node>
         var routesTo: ArrayList<Node>
 
-        var MovingNodeDemand = 0
+        var movingNodeDemand = 0
 
-        var VehIndexFrom: Int
-        var VehIndexTo: Int
-        var BestNCost: Double
-        var NeighborCost: Double
+        var vIndexFrom: Int
+        var vIndexTo: Int
+        var bestNCost: Double
+        var neighborCost: Double
 
-        var SwapIndexA = -1
-        var SwapIndexB = -1
-        var SwapRouteFrom = -1
-        var SwapRouteTo = -1
-        var iteration_number = 0
+        var swapIndexA = -1
+        var swapIndexB = -1
+        var swapRouteFrom = -1
+        var swapRouteTo = -1
+        var iterationNumber = 0
 
-        val DimensionCustomer = this.distances[1].size
-        val TABU_Matrix = Array(DimensionCustomer + 1) { IntArray(DimensionCustomer + 1) }
+        val customerDimension = this.distances[1].size
+        val tabuMatrix = Array(customerDimension + 1) { IntArray(customerDimension + 1) }
 
         this.bestSolutionCost = this.cost
 
+        var wasNewVariantCreated = false
+
         while (true) {
-            BestNCost = java.lang.Double.MAX_VALUE
+            bestNCost = java.lang.Double.MAX_VALUE
+            vIndexFrom = 0
+            while (vIndexFrom < this.vehicles!!.size) {
+                routesFrom = this.vehicles!![vIndexFrom].routes
+                val routeFromLength = routesFrom.size
 
-            VehIndexFrom = 0
-            while (VehIndexFrom < this.vehicles!!.size) {
-                routesFrom = this.vehicles!![VehIndexFrom].routes
-                val RoutFromLength = routesFrom.size
-
-                for (i in 1 until RoutFromLength - 1) { //Not possible to move depot!
-                    VehIndexTo = 0
-                    while (VehIndexTo < this.vehicles!!.size) {
-                        routesTo = this.vehicles!![VehIndexTo].routes
-                        val RouteToLength = routesTo.size
+                for (i in 1 until routeFromLength - 1) { //Not possible to move depot!
+                    vIndexTo = 0
+                    while (vIndexTo < this.vehicles!!.size) {
+                        routesTo = this.vehicles!![vIndexTo].routes
+                        val routeToLength = routesTo.size
                         var j = 0
-                        while (j < RouteToLength - 1) {//Not possible to move after last Depot!
+                        while (j < routeToLength - 1) {//Not possible to move after last Depot!
 
-                            MovingNodeDemand = routesFrom[i].demand
+                            movingNodeDemand = routesFrom[i].demand
 
-                            if (VehIndexFrom == VehIndexTo || this.vehicles!![VehIndexTo].checkIfFits(MovingNodeDemand)) {
+                            if (vIndexFrom == vIndexTo || this.vehicles!![vIndexTo].checkIfFits(movingNodeDemand)) {
                                 //If we assign to a different route check capacity constrains
                                 //if in the new route is the same no need to check for capacity
 
-                                if (!(VehIndexFrom == VehIndexTo && (j == i || j == i - 1)))
+                                if (!(vIndexFrom == vIndexTo && (j == i || j == i - 1)))
                                 // Not a move that Changes solution cost
                                 {
                                     val MinusCost1 = this.distances[routesFrom[i - 1].nodeId][routesFrom[i].nodeId]
@@ -99,90 +90,99 @@ class TabuSearchSolver(
                                     val AddedCost3 = this.distances[routesFrom[i].nodeId][routesTo[j + 1].nodeId]
 
                                     //Check if the move is a Tabu! - If it is Tabu break
-                                    if (TABU_Matrix[routesFrom[i - 1].nodeId][routesFrom[i + 1].nodeId] != 0
-                                        || TABU_Matrix[routesTo[j].nodeId][routesFrom[i].nodeId] != 0
-                                        || TABU_Matrix[routesFrom[i].nodeId][routesTo[j + 1].nodeId] != 0
+                                    if (tabuMatrix[routesFrom[i - 1].nodeId][routesFrom[i + 1].nodeId] != 0
+                                        || tabuMatrix[routesTo[j].nodeId][routesFrom[i].nodeId] != 0
+                                        || tabuMatrix[routesFrom[i].nodeId][routesTo[j + 1].nodeId] != 0
                                     ) {
                                         break
                                     }
 
-                                    NeighborCost = (AddedCost1 + AddedCost2 + AddedCost3
+                                    neighborCost = (AddedCost1 + AddedCost2 + AddedCost3
                                             - MinusCost1 - MinusCost2 - MinusCost3)
 
-                                    if (NeighborCost < BestNCost) {
-                                        BestNCost = NeighborCost
-                                        SwapIndexA = i
-                                        SwapIndexB = j
-                                        SwapRouteFrom = VehIndexFrom
-                                        SwapRouteTo = VehIndexTo
+                                    if (neighborCost < bestNCost) {
+                                        wasNewVariantCreated = true
+                                        bestNCost = neighborCost
+                                        swapIndexA = i
+                                        swapIndexB = j
+                                        swapRouteFrom = vIndexFrom
+                                        swapRouteTo = vIndexTo
                                     }
                                 }
                             }
                             j++
                         }
-                        VehIndexTo++
+                        vIndexTo++
                     }
                 }
-                VehIndexFrom++
+                vIndexFrom++
             }
 
-            for (o in 0 until TABU_Matrix[0].size) {
-                for (p in 0 until TABU_Matrix[0].size) {
-                    if (TABU_Matrix[o][p] > 0) {
-                        TABU_Matrix[o][p]--
+            if (!wasNewVariantCreated) {
+                this.vehicles = this.bestSolutionVehicles
+                this.cost = this.bestSolutionCost
+                return this
+            } else {
+                wasNewVariantCreated = false
+            }
+
+            for (o in 0 until tabuMatrix[0].size) {
+                for (p in 0 until tabuMatrix[0].size) {
+                    if (tabuMatrix[o][p] > 0) {
+                        tabuMatrix[o][p]--
                     }
                 }
             }
 
-            routesFrom = this.vehicles!![SwapRouteFrom].routes
-            routesTo = this.vehicles!![SwapRouteTo].routes
-            this.vehicles!![SwapRouteFrom].routes = null
-            this.vehicles!![SwapRouteTo].routes = null
+            routesFrom = this.vehicles!![swapRouteFrom].routes
+            routesTo = this.vehicles!![swapRouteTo].routes
+            this.vehicles!![swapRouteFrom].routes = ArrayList()
+            this.vehicles!![swapRouteTo].routes = ArrayList()
 
-            val SwapNode = routesFrom[SwapIndexA]
+            val SwapNode = routesFrom[swapIndexA]
 
-            val NodeIDBefore = routesFrom[SwapIndexA - 1].nodeId
-            val NodeIDAfter = routesFrom[SwapIndexA + 1].nodeId
-            val NodeID_F = routesTo[SwapIndexB].nodeId
-            val NodeID_G = routesTo[SwapIndexB + 1].nodeId
+            val NodeIDBefore = routesFrom[swapIndexA - 1].nodeId
+            val NodeIDAfter = routesFrom[swapIndexA + 1].nodeId
+            val NodeID_F = routesTo[swapIndexB].nodeId
+            val NodeID_G = routesTo[swapIndexB + 1].nodeId
 
             val TabuRan = Random()
             val randomDelay1 = TabuRan.nextInt(5)
             val randomDelay2 = TabuRan.nextInt(5)
             val randomDelay3 = TabuRan.nextInt(5)
 
-            TABU_Matrix[NodeIDBefore][SwapNode.nodeId] = this.tabuHorizon + randomDelay1
-            TABU_Matrix[SwapNode.nodeId][NodeIDAfter] = this.tabuHorizon + randomDelay2
-            TABU_Matrix[NodeID_F][NodeID_G] = this.tabuHorizon + randomDelay3
+            tabuMatrix[NodeIDBefore][SwapNode.nodeId] = this.tabuHorizon + randomDelay1
+            tabuMatrix[SwapNode.nodeId][NodeIDAfter] = this.tabuHorizon + randomDelay2
+            tabuMatrix[NodeID_F][NodeID_G] = this.tabuHorizon + randomDelay3
 
-            routesFrom.removeAt(SwapIndexA)
+            routesFrom.removeAt(swapIndexA)
 
-            if (SwapRouteFrom == SwapRouteTo) {
-                if (SwapIndexA < SwapIndexB) {
-                    routesTo.add(SwapIndexB, SwapNode)
+            if (swapRouteFrom == swapRouteTo) {
+                if (swapIndexA < swapIndexB) {
+                    routesTo.add(swapIndexB, SwapNode)
                 } else {
-                    routesTo.add(SwapIndexB + 1, SwapNode)
+                    routesTo.add(swapIndexB + 1, SwapNode)
                 }
             } else {
-                routesTo.add(SwapIndexB + 1, SwapNode)
+                routesTo.add(swapIndexB + 1, SwapNode)
             }
 
-            this.vehicles!![SwapRouteFrom].routes = routesFrom
-            this.vehicles!![SwapRouteFrom].load -= MovingNodeDemand
+            this.vehicles!![swapRouteFrom].routes = routesFrom
+            this.vehicles!![swapRouteFrom].load -= movingNodeDemand
 
-            this.vehicles!![SwapRouteTo].routes = routesTo
-            this.vehicles!![SwapRouteTo].load += MovingNodeDemand
+            this.vehicles!![swapRouteTo].routes = routesTo
+            this.vehicles!![swapRouteTo].load += movingNodeDemand
 
-            this.cost += BestNCost
+            this.cost += bestNCost
 
             if (this.cost < this.bestSolutionCost) {
-                iteration_number = 0
+                iterationNumber = 0
                 this.SaveBestSolution()
             } else {
-                iteration_number++
+                iterationNumber++
             }
 
-            if (iterations == iteration_number) {
+            if (iterations == iterationNumber) {
                 break
             }
         }

@@ -36,8 +36,9 @@ object Main {
             }
             2 -> {
                 val tabuHorizon = 100
-                val localSearch = TabuSearchSolver(tabuHorizon, weight, startDepots, endDepots, 200)
+                val localSearch = TabuSearchSolver(tabuHorizon, weight, startDepots, endDepots, 1000)
                 localSearch.solve()
+                localSearch.print()
             }
             3 -> {
                 println("Not implemented")
