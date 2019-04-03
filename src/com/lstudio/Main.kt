@@ -1,6 +1,7 @@
 package com.lstudio
 
 import com.lstudio.algorithms.antcolony.AntColonyOptimization
+import com.lstudio.algorithms.bruteforce.BruteforceSolver
 import com.lstudio.algorithms.ls.TabuSearchSolver
 import com.lstudio.data.TaskReader
 import java.util.*
@@ -15,6 +16,7 @@ object Main {
         println("1 - MMAS")
         println("2 - LS")
         println("3 - MMAS ISLAND")
+        println("4 - BRUTEFORCE")
 
         val taskReader = TaskReader()
         taskReader.readTask("tasks\\test_task\\test_task_data.txt")
@@ -28,7 +30,7 @@ object Main {
         val endDepots = taskReader.endDepots ?: return
         val startDepots = taskReader.startDepots ?: return
 
-        val decision = 2
+        val decision = 4
         when (decision) {
             1 -> {
                 val antColony = AntColonyOptimization(weight, startDepots, endDepots)
@@ -42,6 +44,10 @@ object Main {
             }
             3 -> {
                 println("Not implemented")
+            }
+            4 -> {
+                val bruteforceSolver = BruteforceSolver(startDepots, endDepots, weight)
+                bruteforceSolver.solve()
             }
             else -> println("Unknown option")
         }

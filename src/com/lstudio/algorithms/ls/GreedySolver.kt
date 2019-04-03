@@ -71,7 +71,10 @@ class GreedySolver internal constructor(
                 // find best node for current vehicle
                 for (i in 0 until noOfCustomers) {
                     if (!nodes[i].isRouted && !nodes[i].isEndDepot) {
+                        if (vehicle.currentLocation == i)
+                            continue
                         candCost = distances[vehicle.currentLocation][i]
+                        System.out.println("$candCost ${vehicle.currentLocation} -> $i ")
                         if (minCost > candCost) {
                             minCost = candCost
                             candidate = nodes[i]
