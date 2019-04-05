@@ -29,9 +29,9 @@ class BruteforceSolver internal constructor(
 
     internal fun solve(): BruteforceSolver {
         val vehicles = 3
-        val customerIds: List<Int> = customerIndices.toList()
+        val customerIds: List<Int> = customerIndices.take(5).toList()
         val startTimeMillis = System.currentTimeMillis()
-        val shortestRouteSet = shortestRouteWithPartitions(customerIds, vehicles)
+        val shortestRouteSet = shortestRouteWithPartitions(customerIds, vehicles, startDepotsIndices)
         println("Solution time: ${TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTimeMillis)} seconds")
         System.out.printf("Shortest distance: %.1f\n", maxLengthForRoutes(shortestRouteSet))
         println("Shortest route: $shortestRouteSet")
@@ -66,7 +66,7 @@ class BruteforceSolver internal constructor(
                 val list = ArrayList<List<Int>>()
                 for (i in 0 until vehicles) {
                     val vehicleRoute = shortestRouteSet[i].toMutableList()
-                    vehicleRoute.add(0, start[i])
+                    //vehicleRoute.add(0, start[i])
                     vehicleRoute.add(end[i])
                     list.add(vehicleRoute)
                 }
@@ -113,7 +113,8 @@ class BruteforceSolver internal constructor(
     /**
      * Returns minimum from a list based on route length
      */
-    fun shortestRoute(routes: java.util.ArrayList<java.util.ArrayList<Int>>): java.util.ArrayList<Int> {
+    fun shortestRoute(routes: ArrayList<ArrayList<Int>>): ArrayList<Int> {
+        System.out.println(routes)
         return routes.minBy {
             routeLength(it)
         }!!
@@ -122,7 +123,7 @@ class BruteforceSolver internal constructor(
     /**
      * Return all permutations of a list, each starting with the first item
      */
-    fun allRoutes(original: java.util.ArrayList<Int>): java.util.ArrayList<java.util.ArrayList<Int>> {
+    fun allRoutes(original: ArrayList<Int>): ArrayList<ArrayList<Int>> {
         if (original.size < 2) {
             return arrayListOf(original)
         } else {
@@ -130,7 +131,7 @@ class BruteforceSolver internal constructor(
             return permutations(original).map {
                 it.add(0, firstElement)
                 return@map it
-            } as java.util.ArrayList<java.util.ArrayList<Int>>
+            } as ArrayList<ArrayList<Int>>
         }
     }
 
@@ -138,7 +139,7 @@ class BruteforceSolver internal constructor(
      * Return maximum from a given route list
      */
     fun maxLengthForRoutes(routeList: List<List<Int>>): Double {
-        val routeLengths = java.util.ArrayList<Double>()
+        val routeLengths = ArrayList<Double>()
         return routeList.mapTo(routeLengths) {
             routeLength(it)
         }.sum()
@@ -149,9 +150,9 @@ class BruteforceSolver internal constructor(
      * with minimum distance cost. Note the total time is always equal to
      * the max time taken by any single vehicle
      */
-    fun shortestRouteWithPartitions(locationIds: List<Int>, partitions: Int): List<List<Int>> {
-        return allShortRoutesWithPartitions(locationIds, partitions)
-            .distinct()
+    fun shortestRouteWithPartitions(locationIds: List<Int>, partitions: Int, startDepots: List<Int>): List<List<Int>> {
+        val short = allShortRoutesWithPartitions(locationIds, partitions, startDepots)
+        return short.distinct()
             .minBy {
                 maxLengthForRoutes(it)
             }!!
@@ -161,17 +162,28 @@ class BruteforceSolver internal constructor(
      * Our partitions represent number of vehicles. This function yields
      * an optimal path for each vehicle given the destinations assigned to it
      */
-    fun allShortRoutesWithPartitions(seq: List<Int>, vehicles: Int): java.util.ArrayList<List<List<Int>>> {
-        val shortRoutesList = java.util.ArrayList<List<List<Int>>>()
+    fun allShortRoutesWithPartitions(
+        seq: List<Int>,
+        vehicles: Int,
+        startDepots: List<Int>
+    ): ArrayList<List<List<Int>>> {
+        val shortRoutesList = ArrayList<List<List<Int>>>()
         return getAllPartitions(seq).filter {
             it.size == vehicles
         }.mapTo(shortRoutesList) {
-            val shortestRouteWithCurrentPartitions = java.util.ArrayList<List<Int>>()
+            val shortestRouteWithCurrentPartitions = ArrayList<List<Int>>()
             it.mapTo(shortestRouteWithCurrentPartitions) {
-                val r = ArrayList<Int>()
-                r.addAll(it)
-                val allRot = allRoutes(r)
-                shortestRoute(allRot)
+                val routeGlobal: ArrayList<ArrayList<Int>> = ArrayList()
+                for (start in startDepots) {
+                    System.out.println("Start depot: $start")
+                    val r = ArrayList<Int>()
+                    r.add(start)
+                    r.addAll(it)
+                    val allRot = allRoutes(r)
+                    val route = shortestRoute(allRot)
+                    routeGlobal.add(route)
+                }
+                routeGlobal.minBy { routeLength(it) }!!
             }
         }
     }

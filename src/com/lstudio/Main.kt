@@ -30,7 +30,7 @@ object Main {
         val endDepots = taskReader.endDepots ?: return
         val startDepots = taskReader.startDepots ?: return
 
-        val decision = 5
+        val decision = 4
         when (decision) {
             1 -> {
                 val antColony = AntColonyOptimization(weight, startDepots, endDepots)
