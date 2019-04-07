@@ -25,9 +25,9 @@ class Ant(private var trailSize: Int, var capacity: Int) {
     }
 
     fun trailLength(graph: Array<DoubleArray>): Double {
-        var length = graph[trail[trailSize - 1]][trail[0]]
-        for (i in 0 until trailSize - 1) {
-            length += graph[trail[i]][trail[i + 1]]
+        var length = 0.0
+        for (i in 1 until currentIndex) {
+            length += graph[trail[i]][trail[i - 1]]
         }
         return length
     }

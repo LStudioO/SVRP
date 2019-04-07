@@ -4,6 +4,7 @@ import com.lstudio.pointrestorer.DistMatrix
 import com.lstudio.pointrestorer.primitives.Point
 import com.lstudio.ui.Visualizer
 import com.lstudio.utils.random
+import java.lang.Exception
 import java.util.*
 import java.util.stream.IntStream
 import kotlin.collections.ArrayList
@@ -32,7 +33,8 @@ class AntColonyOptimization(
     private val probabilities: DoubleArray
     private var candidateList = ArrayList<Int>()
     private var antCapacity = 200
-    private var iterations = 100
+    private var iterations = 100000
+    private var minLength = Double.MAX_VALUE
 
     init {
         numberOfCities = graph.size
@@ -84,12 +86,17 @@ class AntColonyOptimization(
         setupAnts()
         clearTrails()
         for (i in 0 until iterations) {
-            resetAnts()
-            moveAnts()
-            updateTrails()
-            printCurrentSolution()
-            printResult()
+            try {
+                println("Iteration ${i+1}")
+                resetAnts()
+                moveAnts()
+                updateTrails()
+                printCurrentSolution()
+                printResult()
+            } catch (ex: Exception) {
+            }
         }
+        println(minLength)
         //printCurrentSolution()
         //printResult()
     }
@@ -227,6 +234,8 @@ class AntColonyOptimization(
         for (a in ants) {
             length += a.trailLength(graph)
         }
+        if (length < minLength)
+            minLength = length
         return length
     }
 
