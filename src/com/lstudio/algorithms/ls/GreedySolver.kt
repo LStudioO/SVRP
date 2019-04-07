@@ -73,8 +73,8 @@ class GreedySolver internal constructor(
                     if (!nodes[i].isRouted && !nodes[i].isEndDepot) {
                         if (vehicle.currentLocation == i)
                             continue
-                        candCost = distances[vehicle.currentLocation][i]
-                        System.out.println("$candCost ${vehicle.currentLocation} -> $i ")
+                        candCost = distances[vehicle.currentLocation][nodes[i].nodeId]
+                        System.out.println("$candCost ${vehicle.currentLocation} -> ${nodes[i].nodeId}")
                         if (minCost > candCost) {
                             minCost = candCost
                             candidate = nodes[i]
@@ -99,6 +99,7 @@ class GreedySolver internal constructor(
             var currentNode: Node? = null
             nodes.filter { it.isEndDepot && !it.isRouted }.forEach {
                 candCost = distances[vehicle.currentLocation][it.nodeId]
+                System.out.println("$candCost ${vehicle.currentLocation} -> ${it.nodeId}")
                 if (minCost > candCost) {
                     minCost = candCost
                     currentNode = it
@@ -117,21 +118,10 @@ class GreedySolver internal constructor(
     }
 
     fun print() {
-        println("Greedy algorithm")
         println("=========================================================")
-        for (j in 0 until noOfVehicles) {
-            if (!vehicles[j].routes.isEmpty()) {
-                print("Vehicle $j:")
-                val routeSize = vehicles[j].routes.size
-                for (k in 0 until routeSize) {
-                    if (k == routeSize - 1) {
-                        print(vehicles[j].routes[k].nodeId)
-                    } else {
-                        print(vehicles[j].routes[k].nodeId.toString() + "->")
-                    }
-                }
-                println()
-            }
+        println("Greedy algorithm")
+        vehicles.forEach {
+            println(it.routes)
         }
         println("\nBest Value: " + this.cost + "\n")
     }

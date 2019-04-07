@@ -23,6 +23,10 @@ internal object ListPartitioner {
         return partitionsList
     }
 
+    fun getAllPlacements(inputList: MutableList<Int>, placementsCount: Int): List<ArrayList<Int>> {
+        return getCombinations(placementsCount, inputList).distinct().flatMap { permutations(it) }.distinct()
+    }
+
     /** Copied from following link:
      * https://stackoverflow.com/questions/36962150/partitions-of-a-set-storing-results-in-a-series-of-nested-lists
      */
@@ -43,8 +47,8 @@ internal object ListPartitioner {
                 length += k % 2
                 k /= 2
             }
-            val firstPart : IntArray = IntArray(length)
-            val secondPart : IntArray = IntArray(array.size - length)
+            val firstPart: IntArray = IntArray(length)
+            val secondPart: IntArray = IntArray(array.size - length)
             var p = 0
             var q = 0
             for (j in array.indices) {
@@ -73,5 +77,30 @@ internal object ListPartitioner {
             i += 2
         }
         return res
+    }
+
+    fun <T> getCombinations(k: Int, list: MutableList<T>): MutableList<MutableList<T>> {
+        val combinations = ArrayList<MutableList<T>>()
+        if (k == 0) {
+            combinations.add(ArrayList())
+            return combinations
+        }
+        for (i in list.indices) {
+            val element = list[i]
+            val rest = getSublist(list, i + 1)
+            for (previous in getCombinations(k - 1, rest)) {
+                previous.add(element)
+                combinations.add(previous)
+            }
+        }
+        return combinations
+    }
+
+    fun <T> getSublist(list: MutableList<T>, i: Int): MutableList<T> {
+        val sublist = ArrayList<T>()
+        for (j in i until list.size) {
+            sublist.add(list[j])
+        }
+        return sublist
     }
 }

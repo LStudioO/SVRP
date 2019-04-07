@@ -209,20 +209,9 @@ class TabuSearchSolver(
 
     fun print() {
         println("=========================================================")
-
-        for (j in 0 until this.noOfVehicles) {
-            if (!this.vehicles!![j].routes.isEmpty()) {
-                print("Vehicle $j:")
-                val RoutSize = this.vehicles!![j].routes.size
-                for (k in 0 until RoutSize) {
-                    if (k == RoutSize - 1) {
-                        print(this.vehicles!![j].routes[k].nodeId)
-                    } else {
-                        print(this.vehicles!![j].routes[k].nodeId.toString() + "->")
-                    }
-                }
-                println()
-            }
+        println("Tabu search")
+        vehicles!!.forEach {
+            println(it.routes)
         }
         println("\nBest Value: " + this.cost + "\n")
     }
