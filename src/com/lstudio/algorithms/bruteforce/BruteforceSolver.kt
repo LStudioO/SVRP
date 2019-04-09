@@ -2,7 +2,7 @@ package com.lstudio.algorithms.bruteforce
 
 import com.lstudio.algorithms.bruteforce.ListPartitioner.getAllPartitions
 import com.lstudio.algorithms.bruteforce.ListPartitioner.getAllPlacements
-import com.lstudio.algorithms.ls.Vehicle
+import com.lstudio.algorithms.ls.model.Vehicle
 import java.util.HashMap
 import java.util.concurrent.TimeUnit
 

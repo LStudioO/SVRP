@@ -1,10 +1,10 @@
-package com.lstudio.algorithms.ls
+package com.lstudio.algorithms.ls.capacited
 
 import com.lstudio.algorithms.ls.model.Node
 import com.lstudio.algorithms.ls.model.Vehicle
 import java.util.HashMap
 
-class GreedySolver internal constructor(
+class GreedySolverCapacited internal constructor(
     startDepots: IntArray, private val endDepots: HashMap<Int, Int>,
     private val distances: Array<DoubleArray>, vehicleCapacity: Int
 ) {
@@ -54,7 +54,7 @@ class GreedySolver internal constructor(
         return false
     }
 
-    internal fun solve(): GreedySolver {
+    internal fun solve(): GreedySolverCapacited {
         // candidate cost for current route
         var candCost: Double
         // add start depots to vehicles
@@ -65,34 +65,36 @@ class GreedySolver internal constructor(
             vehicle.addNode(startNode)
         }
 
+        var currentVehicleIndex = 0
+
         // add customers to vehicles
         loop@ while (unassignedCustomerExists(nodes)) {
-            for (vehicle in vehicles) {
-                var minCost = Double.MAX_VALUE
-                var candidate: Node? = null
-                // find best node for current vehicle
-                for (i in 0 until noOfCustomers) {
-                    if (!nodes[i].isRouted && !nodes[i].isEndDepot) {
-                        if (vehicle.currentLocation == i)
-                            continue
-                        candCost = distances[vehicle.currentLocation][nodes[i].nodeId]
-                        System.out.println("$candCost ${vehicle.currentLocation} -> ${nodes[i].nodeId}")
+            var minCost = Double.MAX_VALUE
+            var candidate: Node? = null
+            // find best node for current vehicle
+            for (i in 0 until noOfCustomers) {
+                if (!nodes[i].isRouted && !nodes[i].isEndDepot) {
+                    if (vehicles[currentVehicleIndex].currentLocation == i)
+                        continue
+                    candCost = distances[vehicles[currentVehicleIndex].currentLocation][nodes[i].nodeId]
+                    if (vehicles[currentVehicleIndex].checkIfFits(candCost)) {
+                        System.out.println("$candCost ${vehicles[currentVehicleIndex].currentLocation} -> ${nodes[i].nodeId}")
                         if (minCost > candCost) {
                             minCost = candCost
                             candidate = nodes[i]
                         }
                     }
                 }
-
-                // if candidate doesn't exist - break loop
-                if (candidate == null)
-                    break@loop
-
-                // add best vehicle to route
-                candidate.isRouted = true
-                vehicle.addNode(candidate)
-                cost += minCost
             }
+
+            // if candidate doesn't exist - break loop
+            if (candidate == null)
+                break@loop
+
+            // add best vehicle to route
+            candidate.isRouted = true
+            vehicles[currentVehicleIndex].addNode(candidate)
+            cost += minCost
         }
 
         // add end depots

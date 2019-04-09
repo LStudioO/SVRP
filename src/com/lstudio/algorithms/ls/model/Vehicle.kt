@@ -1,14 +1,13 @@
-package com.lstudio.algorithms.ls
+package com.lstudio.algorithms.ls.model
 
 import java.util.ArrayList
 
 internal class Vehicle(private val capacity: Int) {
     var routes = ArrayList<Node>()
-    var load: Int = 0
+    var load: Double = 0.0
     var currentLocation: Int = 0
 
     init {
-        this.load = 0
         this.currentLocation = 0 //In depot Initially
         this.routes.clear()
     }
@@ -20,7 +19,7 @@ internal class Vehicle(private val capacity: Int) {
         this.currentLocation = Customer.nodeId
     }
 
-    fun checkIfFits(dem: Int) //Check if we have Capacity Violation
+    fun checkIfFits(dem: Double) //Check if we have Capacity Violation
             : Boolean {
         return load + dem <= capacity
     }

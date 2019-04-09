@@ -1,4 +1,4 @@
-package com.lstudio.algorithms.ls
+package com.lstudio.algorithms.ls.capacited
 
 import com.lstudio.algorithms.ls.model.Node
 import com.lstudio.algorithms.ls.model.Vehicle
@@ -6,7 +6,7 @@ import java.util.ArrayList
 import java.util.HashMap
 import java.util.Random
 
-class TabuSearchSolver(
+class TabuSearchSolverCapacited(
     private val tabuHorizon: Int, private val distances: Array<DoubleArray>, startDepots: IntArray,
     endDepots: HashMap<Int, Int>, private val iterations: Int
 ) {
@@ -20,7 +20,7 @@ class TabuSearchSolver(
 
     init {
         val vehicleCapacity = 1000
-        val greedySolver = GreedySolver(
+        val greedySolver = GreedySolverCapacited(
             startDepots, endDepots,
             distances, vehicleCapacity
         )
@@ -34,7 +34,7 @@ class TabuSearchSolver(
         }
     }
 
-    fun solve(): TabuSearchSolver {
+    fun solve(): TabuSearchSolverCapacited {
         //We use 1-0 exchange move
         var routesFrom: ArrayList<Node>
         var routesTo: ArrayList<Node>
