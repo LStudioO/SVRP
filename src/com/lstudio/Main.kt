@@ -3,6 +3,7 @@ package com.lstudio
 import com.lstudio.algorithms.antcolony.AntColonyOptimization
 import com.lstudio.algorithms.bruteforce.BruteforceSolver
 import com.lstudio.algorithms.ls.TabuSearchSolver
+import com.lstudio.data.TaskGenerator
 import com.lstudio.data.TaskReader
 import java.util.*
 
@@ -17,6 +18,8 @@ object Main {
         println("2 - LS")
         println("3 - MMAS ISLAND")
         println("4 - BRUTEFORCE")
+        println("5 - TASK GENERATOR")
+
 
         val taskReader = TaskReader()
         taskReader.readTask("tasks\\test_task\\test_task_data.txt")
@@ -49,6 +52,17 @@ object Main {
             4 -> {
                 val bruteforceSolver = BruteforceSolver(startDepots, endDepots, weight)
                 bruteforceSolver.solve()
+            }
+            5 -> {
+                val taskGenerator = TaskGenerator()
+                val cin = Scanner(System.`in`)
+                while (true) {
+                    System.out.println("Enter customers count")
+                    val answer = cin.nextInt()
+                    if (answer == -1)
+                        break
+                    taskGenerator.generate(answer, 3, 4)
+                }
             }
             else -> println("Unknown option")
         }
