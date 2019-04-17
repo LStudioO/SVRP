@@ -76,7 +76,6 @@ class GreedySolver internal constructor(
                         if (vehicle.currentLocation == i)
                             continue
                         candCost = distances[vehicle.currentLocation][nodes[i].nodeId]
-                        System.out.println("$candCost ${vehicle.currentLocation} -> ${nodes[i].nodeId}")
                         if (minCost > candCost) {
                             minCost = candCost
                             candidate = nodes[i]
@@ -101,7 +100,6 @@ class GreedySolver internal constructor(
             var currentNode: Node? = null
             nodes.filter { it.isEndDepot && !it.isRouted }.forEach {
                 candCost = distances[vehicle.currentLocation][it.nodeId]
-                System.out.println("$candCost ${vehicle.currentLocation} -> ${it.nodeId}")
                 if (minCost > candCost) {
                     minCost = candCost
                     currentNode = it

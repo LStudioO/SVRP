@@ -6,6 +6,7 @@ import com.lstudio.algorithms.ls.TabuSearchSolver
 import com.lstudio.data.TaskGenerator
 import com.lstudio.data.TaskReader
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 object Main {
 
@@ -22,7 +23,7 @@ object Main {
 
 
         val taskReader = TaskReader()
-        taskReader.readTask("tasks\\test_task\\test_task_data.txt")
+        taskReader.readTask("tasks\\test_task\\generated\\test_task_30_4_7.txt")
         System.out.println(
             "Task name: ${taskReader.name} \n" +
                     "City count: ${taskReader.cityCount}\n" +
@@ -42,8 +43,10 @@ object Main {
             }
             2 -> {
                 val tabuHorizon = 100
+                val startTimeMillis = System.currentTimeMillis()
                 val localSearch = TabuSearchSolver(tabuHorizon, weight, startDepots, endDepots, 1000)
                 localSearch.solve()
+                println("Solution time: ${(System.currentTimeMillis() - startTimeMillis)} milliseconds")
                 localSearch.print()
             }
             3 -> {
@@ -61,7 +64,7 @@ object Main {
                     val answer = cin.nextInt()
                     if (answer == -1)
                         break
-                    taskGenerator.generate(answer, 3, 4)
+                    taskGenerator.generate(answer, 10, 12)
                 }
             }
             else -> println("Unknown option")

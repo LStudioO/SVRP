@@ -78,7 +78,6 @@ class GreedySolverCapacited internal constructor(
                         continue
                     candCost = distances[vehicles[currentVehicleIndex].currentLocation][nodes[i].nodeId]
                     if (vehicles[currentVehicleIndex].checkIfFits(candCost)) {
-                        System.out.println("$candCost ${vehicles[currentVehicleIndex].currentLocation} -> ${nodes[i].nodeId}")
                         if (minCost > candCost) {
                             minCost = candCost
                             candidate = nodes[i]
@@ -103,7 +102,6 @@ class GreedySolverCapacited internal constructor(
             var currentNode: Node? = null
             nodes.filter { it.isEndDepot && !it.isRouted }.forEach {
                 candCost = distances[vehicle.currentLocation][it.nodeId]
-                System.out.println("$candCost ${vehicle.currentLocation} -> ${it.nodeId}")
                 if (minCost > candCost) {
                     minCost = candCost
                     currentNode = it

@@ -37,7 +37,7 @@ class BruteforceSolver internal constructor(
         }
         val startTimeMillis = System.currentTimeMillis()
         val shortestRouteSet = shortestRouteWithPartitions(customerIds, vehicles, startDepotsIndices, endDepotsList)
-        println("Solution time: ${TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTimeMillis)} seconds")
+        println("Solution time: ${(System.currentTimeMillis() - startTimeMillis)} milliseconds")
         System.out.printf("Shortest distance: %.1f\n", maxLengthForRoutes(shortestRouteSet))
         println("Shortest route: $shortestRouteSet")
         return this
