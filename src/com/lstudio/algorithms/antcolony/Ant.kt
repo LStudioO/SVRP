@@ -20,6 +20,17 @@ class Ant(private var trailSize: Int, var capacity: Int) {
         return visited[i]
     }
 
+    fun containsRoute(i: Int, j: Int): Boolean {
+        if (!visited(i) || !visited(j))
+            return false
+
+        val firstCityIndex = trail.indexOf(i)
+        if (trail[firstCityIndex + 1] == j)
+            return true
+
+        return false
+    }
+
     fun currentCity(): Int {
         return trail[currentIndex - 1]
     }
@@ -33,8 +44,7 @@ class Ant(private var trailSize: Int, var capacity: Int) {
     }
 
     fun printTrail() {
-        for (i in 0 until currentIndex - 1)
-        {
+        for (i in 0 until currentIndex - 1) {
             print("${trail[i]} -> ")
         }
         println("${trail[currentIndex - 1]}")
@@ -46,5 +56,14 @@ class Ant(private var trailSize: Int, var capacity: Int) {
 
         currentIndex = 0
         isRouteCompleted = false
+    }
+
+    fun clone(): Ant {
+        val newAnt = Ant(trailSize, capacity)
+        newAnt.trail = trail.clone()
+        newAnt.currentIndex = currentIndex
+        newAnt.isRouteCompleted = isRouteCompleted
+        newAnt.visited = visited.clone()
+        return newAnt
     }
 }

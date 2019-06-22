@@ -1,12 +1,11 @@
 package com.lstudio
 
-import com.lstudio.algorithms.antcolony.AntColonyOptimization
+import com.lstudio.algorithms.antcolony.MMASOptimization
 import com.lstudio.algorithms.bruteforce.BruteforceSolver
 import com.lstudio.algorithms.ls.TabuSearchSolver
 import com.lstudio.data.TaskGenerator
 import com.lstudio.data.TaskReader
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 object Main {
 
@@ -38,7 +37,7 @@ object Main {
         val decision = input.nextInt()
         when (decision) {
             1 -> {
-                val antColony = AntColonyOptimization(weight, startDepots, endDepots)
+                val antColony = MMASOptimization(weight, startDepots, endDepots)
                 antColony.startAntOptimization()
             }
             2 -> {

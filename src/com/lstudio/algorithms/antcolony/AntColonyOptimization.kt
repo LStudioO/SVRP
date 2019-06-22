@@ -15,18 +15,11 @@ class AntColonyOptimization(
     private val startDepots: IntArray,
     private val endDepots: HashMap<Int, Int>
 ) {
-
-    // parameters for MMAS
-    //private val c = 1.0
+    private val c = 1.0
     private val alpha = 1.0
-    private val beta = 2.0
-    private val stagnation = 10
-    private val rho = 0.1
-
-    private var tMax = 0.0
-    private var tMin = 0.0
-
-    //private val Q = 1.0
+    private val beta = 5.0
+    private val evaporation = 0.5
+    private val Q = 1.0
     private val randomFactor = 0.01
     private val numberOfCities: Int
     private val numberOfAnts: Int
@@ -91,11 +84,10 @@ class AntColonyOptimization(
      */
     fun solve() {
         setupAnts()
-        initMinMaxPheromone()
         clearTrails()
         for (i in 0 until iterations) {
             try {
-                println("Iteration ${i + 1}")
+                println("Iteration ${i+1}")
                 resetAnts()
                 moveAnts()
                 updateTrails()
@@ -107,20 +99,6 @@ class AntColonyOptimization(
         println(minLength)
         //printCurrentSolution()
         //printResult()
-    }
-
-    private fun initMinMaxPheromone() {
-        tMax = getT0()
-        tMin = tMax / 10
-    }
-
-    private fun getT0(): Double {
-        val cnn = getCnn()
-        return  1.0 / (rho * cnn)
-    }
-
-    private fun getCnn(): Double {
-        return 0.0
     }
 
     private fun resetAnts() {
@@ -234,16 +212,11 @@ class AntColonyOptimization(
      * Update trails that ants used
      */
     private fun updateTrails() {
-
-        // evaporation
         for (i in 0 until numberOfCities) {
             for (j in 0 until numberOfCities) {
-                trails[i][j] = (1.0 - rho) * trails[i][j]
+                trails[i][j] *= evaporation
             }
         }
-
-
-
         for (a in ants) {
             val contribution = Q / a.trailLength(graph)
             for (i in 0 until numberOfCities - 1) {
