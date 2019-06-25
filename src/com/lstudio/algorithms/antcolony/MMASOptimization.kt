@@ -222,12 +222,25 @@ class MMASOptimization(
                     continue
                 if (candidateList.size == 0)
                     return
-                val city = selectNextCity(ant)
-                val currentCity = cities[city]
+                var city = selectNextCity(ant)
+                var currentCity = cities[city]
 
                 if (ants.count { !it.isRouteCompleted } == 1 && candidateList.size > 1) {
                     if (currentCity.type == CityType.END_DEPOT) {
-                        continue
+                        candidateList.remove(city)
+
+                        while (candidateList.any {cities[it].type == CityType.CUSTOMER}) {
+
+                            // select only non end depot cities
+
+                            city = selectNextCity(ant)
+                            currentCity = cities[city]
+                            ant.visitCity(city)
+
+
+                            // find best end depot
+
+                        }
                     }
                 }
                 ant.visitCity(city)

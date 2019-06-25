@@ -1,5 +1,6 @@
 package com.lstudio
 
+import com.lstudio.algorithms.antcolony.AntColonyOptimization
 import com.lstudio.algorithms.antcolony.MMASOptimization
 import com.lstudio.algorithms.bruteforce.BruteforceSolver
 import com.lstudio.algorithms.ls.TabuSearchSolver
@@ -14,9 +15,9 @@ object Main {
     fun main(args: Array<String>) {
         val scanner = Scanner(System.`in`)
         println("Run algorithm:")
-        println("1 - MMAS")
+        println("1 - AS")
         println("2 - LS")
-        println("3 - MMAS ISLAND")
+        println("3 - MMAS")
         println("4 - BRUTEFORCE")
         println("5 - TASK GENERATOR")
 
@@ -37,7 +38,7 @@ object Main {
         val decision = input.nextInt()
         when (decision) {
             1 -> {
-                val antColony = MMASOptimization(weight, startDepots, endDepots)
+                val antColony = AntColonyOptimization(weight, startDepots, endDepots)
                 antColony.startAntOptimization()
             }
             2 -> {
@@ -49,7 +50,8 @@ object Main {
                 localSearch.print()
             }
             3 -> {
-                println("Not implemented")
+                val antColony = MMASOptimization(weight, startDepots, endDepots)
+                antColony.startAntOptimization()
             }
             4 -> {
                 val bruteforceSolver = BruteforceSolver(startDepots, endDepots, weight)
