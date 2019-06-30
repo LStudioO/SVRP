@@ -11,7 +11,7 @@ import java.util.stream.IntStream
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-class MMASOptimization(
+class FarsightedMMASOptimization(
     distanceMatrix: Array<DoubleArray>,
     private val startDepots: IntArray,
     private val endDepots: HashMap<Int, Int>
@@ -27,12 +27,13 @@ class MMASOptimization(
     private val trails: Array<DoubleArray>
     private val ants = ArrayList<Ant>()
     private val random = Random()
-    private val probabilities: DoubleArray
+    lateinit var probabilities: MutableMap<List<Int>, Double>
     private var candidateList = ArrayList<Int>()
     private var antCapacity = 200
     private var iterations = 5000
     private var minLength = Double.MAX_VALUE
-        init {
+
+    init {
         numberOfCities = graph.size
         candidateList.addAll((0 until graph.size))
         numberOfAnts = startDepots.size
@@ -40,7 +41,7 @@ class MMASOptimization(
         numberOfEndDepots = endDepots.keys.size
 
         trails = Array(numberOfCities) { DoubleArray(numberOfCities) }
-        probabilities = DoubleArray(numberOfCities)
+        //probabilities = DoubleArray(numberOfCities)
         IntStream.range(0, numberOfAnts)
             .forEach { ants.add(Ant(numberOfCities, antCapacity)) }
 
@@ -171,7 +172,7 @@ class MMASOptimization(
             //System.`in`.read()
 
             try {
-               // println("Iteration ${i + 1}")
+                // println("Iteration ${i + 1}")
                 setupAnts()
                 moveAnts()
                 updatePheromones()
@@ -188,43 +189,173 @@ class MMASOptimization(
     // construct ant solution
 
 
-    fun calculateProbabilities(ant: Ant) {
+    fun calculateProbabilitiesNew(ant: Ant) {
         val i = ant.currentCity()
-        var pheromone = 0.0
-        for (l in 0 until candidateList.size) {
-            val index = candidateList[l]
-            if (!ant.visited(index)) {
-                pheromone += Math.pow(trails[i][index], alpha) * Math.pow(1.0 / graph[i][index], beta)
-            } else
-            {
-                throw Exception("wtf")
+
+        var denominator = 0.0
+        // calculate sum tau(ir) * n(ir)
+        val customers = candidateList.filter { cities[it].type == CityType.CUSTOMER }
+
+        for (j in candidateList) {
+            denominator += Math.pow(trails[i][j], alpha) * Math.pow(1.0 / graph[i][j], beta)
+
+         //   log("1: T1: ${ trails[i][j] }")
+         //   log("1: G1: ${ 1.0 / graph[i][j] }")
+        }
+
+        val optimalNumber = Math.sqrt(candidateList.size.toDouble()).toInt() // 20%
+
+        val indexes1 = customers.shuffled().take(optimalNumber)
+        val indexes2 = candidateList.shuffled().take(optimalNumber)
+
+        // not all possible
+//        // generate all possible pairs (i,r), (r,j)
+//
+        // all possible r
+        for (r in indexes1) {
+            // all possible j
+            for (j in indexes2) {
+                if (r == j)
+                    continue
+
+               // log("2: T1: ${ trails[i][r] } + T2: ${trails[r][j]}")
+              //  log("2: G1: ${ 1.0 / graph[i][r] } + G2: ${1.0 / graph[r][j]}")
+
+                denominator += Math.pow(
+                    trails[i][r] * trails[r][j],
+                    alpha
+                ) * Math.pow(1.0 / graph[i][r] + 1.0 / graph[r][j], beta)
             }
         }
-        for (k in 0 until candidateList.size) {
-            val index = candidateList[k]
-            if (ant.visited(index)) {
-                probabilities[index] = 0.0
-            } else {
-                val numerator = Math.pow(trails[i][index], alpha) * Math.pow(1.0 / graph[i][index], beta)
-                probabilities[index] = numerator / pheromone
+
+        // make new probabilities
+        probabilities = mutableMapOf<List<Int>, Double>()
+
+//        // generate all possible pairs (i,r), (r,j)
+        // all possible r
+        for (r in indexes1) {
+            // all possible j
+            for (j in indexes2) {
+                if (r == j)
+                    continue
+
+                val list = arrayListOf(r, j)
+                probabilities[list] = Math.pow(trails[i][r] * trails[r][j], alpha) * Math.pow(
+                    1.0 / graph[i][r] + (1.0 / graph[r][j]),
+                    beta
+                ) / denominator
             }
         }
+
+        for (j in candidateList) {
+            val list = arrayListOf(j)
+            probabilities[list] = Math.pow(trails[i][j], alpha) * Math.pow(1.0 / graph[i][j], beta) / denominator
+        }
+
+        var sumOne = 0.0
+        var sumTwo = 0.0
+        probabilities.filter { key -> key.key.size == 2 }.forEach { t, u -> sumOne += u }
+        probabilities.filter { key -> key.key.size == 1 }.forEach { t, u -> sumTwo += u }
+        if (sumOne + sumTwo > 2)
+            throw java.lang.RuntimeException("Wtf")
     }
 
 
 
-    fun selectNextCity(ant: Ant): Int {
+
+//    fun calculateProbabilitiesNew(ant: Ant) {
+//        val i = ant.currentCity()
+//
+//        var denominator = 0.0
+//        // calculate sum tau(ir) * n(ir)
+//        val customers = candidateList.filter { cities[it].type == CityType.CUSTOMER }
+//
+//        for (j in candidateList) {
+//            denominator += Math.pow(trails[i][j], alpha) * Math.pow(1.0 / graph[i][j], beta)
+//        }
+//
+//        // generate all possible pairs (i,r), (r,j)
+//
+//        // all possible r
+//        for (r in customers) {
+//            // all possible j
+//            for (j in candidateList) {
+//                if (r == j)
+//                    continue
+//
+//                denominator += Math.pow(
+//                    trails[i][r] * trails[r][j],
+//                    alpha
+//                ) * Math.pow(1.0 / graph[i][r] + 1.0 / graph[r][j], beta)
+//            }
+//        }
+//
+//        // make new probabilities
+//        probabilities = mutableMapOf<List<Int>, Double>()
+//
+//        // generate all possible pairs (i,r), (r,j)
+//        // all possible r
+//        for (r in customers) {
+//            // all possible j
+//            for (j in candidateList) {
+//                if (r == j)
+//                    continue
+//
+//                val list = arrayListOf(r, j)
+//                probabilities[list] = Math.pow(trails[i][r] * trails[r][j], alpha) * Math.pow(
+//                    1.0 / graph[i][r] + (1.0 / graph[r][j]),
+//                    beta
+//                ) / denominator
+//            }
+//        }
+//
+//        for (j in candidateList) {
+//            val list = arrayListOf(j)
+//            probabilities[list] = Math.pow(trails[i][j], alpha) * Math.pow(1.0 / graph[i][j], beta) / denominator
+//        }
+//
+//        var sumOne = 0.0
+//        var sumTwo = 0.0
+//        probabilities.filter { key -> key.key.size == 2 }.forEach { t, u -> sumOne += u }
+//        probabilities.filter { key -> key.key.size == 1 }.forEach { t, u -> sumTwo += u }
+//        if (sumOne + sumTwo > 1.1)
+//            throw java.lang.RuntimeException("Wtf")
+//    }
+
+
+//    fun calculateProbabilities(ant: Ant) {
+//        val i = ant.currentCity()
+//        var pheromone = 0.0
+//        for (l in 0 until candidateList.size) {
+//            val index = candidateList[l]
+//            if (!ant.visited(index)) {
+//                pheromone += Math.pow(trails[i][index], alpha) * Math.pow(1.0 / graph[i][index], beta)
+//            }
+//        }
+//        for (k in 0 until candidateList.size) {
+//            val index = candidateList[k]
+//            if (ant.visited(index)) {
+//                probabilities[index] = 0.0
+//            } else {
+//                val numerator = Math.pow(trails[i][index], alpha) * Math.pow(1.0 / graph[i][index], beta)
+//                probabilities[index] = numerator / pheromone
+//            }
+//        }
+//    }
+
+
+    fun selectNextCity(ant: Ant): List<Int> {
         val t = candidateList.random()
         if (random.nextDouble() < randomFactor) {
             if (!ant.visited(t))
-                return t
+                return arrayListOf(t)
         }
-        calculateProbabilities(ant)
+        calculateProbabilitiesNew(ant)
         val r = random.nextDouble()
         var total = 0.0
-        for (i in 0 until candidateList.size) {
-            val index = candidateList[i]
-            total += probabilities[index]
+        for (itm in probabilities) {
+            val index = itm.key
+            total += itm.value
             if (total >= r) {
                 return index
             }
@@ -236,18 +367,24 @@ class MMASOptimization(
 
     private fun moveAnts() {
         log("Move started")
-        while (ants.any { !it.isRouteCompleted }) {
+        loop@ while (ants.any { !it.isRouteCompleted }) {
             for (i in (0 until numberOfAnts).shuffled()) {
                 val ant = ants[i]
                 if (ant.isRouteCompleted)
                     continue
                 if (candidateList.size == 0)
                     return
-                var city = selectNextCity(ant)
-                var currentCity = cities[city]
 
-                if (ants.count { !it.isRouteCompleted } == 1 && candidateList.size > 1) {
-                    if (currentCity.type == CityType.END_DEPOT) {
+                var precity = selectNextCity(ant)
+
+                if (precity.size == 2)
+                    precity = precity.drop(1)
+
+                for (city in precity) {
+                    var currentCity = cities[city]
+
+                    if (ants.count { !it.isRouteCompleted } == 1 && candidateList.size > 1) {
+                        //if (currentCity.type == CityType.END_DEPOT) {
                         //candidateList.remove(city)
 
                         val depots = candidateList.filter { cities[it].type == CityType.END_DEPOT }
@@ -255,10 +392,16 @@ class MMASOptimization(
 
 
                         while (candidateList.size > 0) {
-                            city = selectNextCity(ant)
-                            currentCity = cities[city]
-                            ant.visitCity(city)
-                            candidateList.remove(city)
+                            precity = selectNextCity(ant)
+
+                            if (precity.size == 2)
+                                precity = precity.drop(1)
+
+                            for (city1 in precity) {
+                                currentCity = cities[city1]
+                                ant.visitCity(city1)
+                                candidateList.remove(city1)
+                            }
                         }
 
                         val lastCity = currentCity
@@ -270,17 +413,19 @@ class MMASOptimization(
                         }!!
 
                         ant.visitCity(bestDepot)
+                        //}
+                        //break
                     }
-                    break
-                }
-                ant.visitCity(city)
-                if (currentCity.type == CityType.END_DEPOT) {
-                    ant.isRouteCompleted = true
-                    currentCity.availableCapacity--
-                    if (currentCity.availableCapacity == 0)
+                    ant.visitCity(city)
+                    if (currentCity.type == CityType.END_DEPOT) {
+                        ant.isRouteCompleted = true
+                        currentCity.availableCapacity--
+                        if (currentCity.availableCapacity == 0)
+                            candidateList.remove(city)
+                    } else
                         candidateList.remove(city)
-                } else
-                    candidateList.remove(city)
+                }
+
             }
         }
 
@@ -294,7 +439,7 @@ class MMASOptimization(
     // determine current or global best
 
     fun determineBest(): Ant {
-        return ants.minBy { it.trailLength(graph) }!!
+        return ants.minBy { it.trailLength(graph) / Math.pow(it.currentIndex.toDouble(), 2.0) }!! /// it.currentIndex }!!
     }
 
     // update pheromones
@@ -308,7 +453,7 @@ class MMASOptimization(
 
             val ant = determineBest()
             if (ant.containsRoute(i, j))
-                deltaTau += Q / ant.trailLength(graph)
+                deltaTau += Q / (ant.trailLength(graph) / Math.pow(ant.currentIndex.toDouble(), 2.0)) /// ant.currentIndex)
 
             return deltaTau
         }
@@ -383,13 +528,13 @@ class MMASOptimization(
             log("Verifying if the pheromone matrix should be restarted")
 
             if (bestAnt == null) {
-                bestAnt = determineBest().clone()
+                bestAnt = bestSoFar!!.clone()
             }
 
-            if (bestAnt!!.trailLength(graph) == determineBest().trailLength(graph)) {
+            if (bestAnt!!.trailLength(graph) == bestSoFar!!.trailLength(graph)) {
                 stagnationCounter++
             } else {
-                bestAnt = determineBest().clone()
+                bestAnt = bestSoFar!!.clone()
                 stagnationCounter = 0
             }
 

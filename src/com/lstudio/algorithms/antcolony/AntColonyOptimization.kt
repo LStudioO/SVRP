@@ -33,7 +33,7 @@ class AntColonyOptimization(
     private val probabilities: DoubleArray
     private var candidateList = ArrayList<Int>()
     private var antCapacity = 200
-    private var iterations = 100000
+    private var iterations = 5000
     private var minLength = Double.MAX_VALUE
 
     init {
@@ -87,18 +87,18 @@ class AntColonyOptimization(
         clearTrails()
         for (i in 0 until iterations) {
             try {
-                println("Iteration ${i+1}")
+              //  println("Iteration ${i+1}")
                 resetAnts()
                 moveAnts()
                 updateTrails()
-                printCurrentSolution()
-                printResult()
+               printCurrentSolution()
+              printResult()
             } catch (ex: Exception) {
             }
         }
         println(minLength)
-        //printCurrentSolution()
-        //printResult()
+        printCurrentSolution()
+        printResult()
     }
 
     private fun resetAnts() {
@@ -142,13 +142,35 @@ class AntColonyOptimization(
                     continue
                 if (candidateList.size == 0)
                     return
-                val city = selectNextCity(ant)
-                val currentCity = cities[city]
+                var city = selectNextCity(ant)
+                var currentCity = cities[city]
 
                 if (ants.count { !it.isRouteCompleted } == 1 && candidateList.size > 1) {
                     if (currentCity.type == CityType.END_DEPOT) {
-                        continue
+                        //candidateList.remove(city)
+
+                        val depots = candidateList.filter { cities[it].type == CityType.END_DEPOT }
+                        candidateList.removeAll(depots)
+
+
+                        while (candidateList.size > 0) {
+                            city = selectNextCity(ant)
+                            currentCity = cities[city]
+                            ant.visitCity(city)
+                            candidateList.remove(city)
+                        }
+
+                        val lastCity = currentCity
+
+                        // find best end depot
+
+                        val bestDepot = depots.minBy {
+                            graph[lastCity.index][it]
+                        }!!
+
+                        ant.visitCity(bestDepot)
                     }
+                    break
                 }
                 ant.visitCity(city)
                 if (currentCity.type == CityType.END_DEPOT) {
@@ -159,6 +181,10 @@ class AntColonyOptimization(
                 } else
                     candidateList.remove(city)
             }
+        }
+
+        if (candidateList.size > 0) {
+            throw Exception("Something went wrong")
         }
     }
 

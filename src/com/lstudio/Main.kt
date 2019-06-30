@@ -1,6 +1,7 @@
 package com.lstudio
 
 import com.lstudio.algorithms.antcolony.AntColonyOptimization
+import com.lstudio.algorithms.antcolony.FarsightedMMASOptimization
 import com.lstudio.algorithms.antcolony.MMASOptimization
 import com.lstudio.algorithms.bruteforce.BruteforceSolver
 import com.lstudio.algorithms.ls.TabuSearchSolver
@@ -18,12 +19,13 @@ object Main {
         println("1 - AS")
         println("2 - LS")
         println("3 - MMAS")
-        println("4 - BRUTEFORCE")
-        println("5 - TASK GENERATOR")
+        println("4 - MMAS FARSIGHTED")
+        println("5 - BRUTEFORCE")
+        println("6 - TASK GENERATOR")
 
 
         val taskReader = TaskReader()
-        taskReader.readTask("tasks\\test_task\\generated\\test_task_30_4_7.txt")
+        taskReader.readTask("tasks\\test_task\\test_task_data.txt")
         System.out.println(
             "Task name: ${taskReader.name} \n" +
                     "City count: ${taskReader.cityCount}\n" +
@@ -54,10 +56,14 @@ object Main {
                 antColony.startAntOptimization()
             }
             4 -> {
+                val antColony = FarsightedMMASOptimization(weight, startDepots, endDepots)
+                antColony.startAntOptimization()
+            }
+            5 -> {
                 val bruteforceSolver = BruteforceSolver(startDepots, endDepots, weight)
                 bruteforceSolver.solve()
             }
-            5 -> {
+            6 -> {
                 val taskGenerator = TaskGenerator()
                 val cin = Scanner(System.`in`)
                 while (true) {
