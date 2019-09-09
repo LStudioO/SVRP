@@ -32,6 +32,7 @@ class FarsightedMMASOptimization(
     private var antCapacity = 200
     private var iterations = 5000
     private var minLength = Double.MAX_VALUE
+    private var routeIterations = 10
 
     init {
         numberOfCities = graph.size
@@ -174,7 +175,13 @@ class FarsightedMMASOptimization(
             try {
                 // println("Iteration ${i + 1}")
                 setupAnts()
-                moveAnts()
+                for (j in 0 until routeIterations) {
+                    moveAnts()
+                    // TODO: save current route
+                    setupAnts()
+                    // TODO: find best solution
+                }
+                // TODO: prepare parallelization
                 updatePheromones()
                 daemonActions()
                 printCurrentSolution()
@@ -199,8 +206,8 @@ class FarsightedMMASOptimization(
         for (j in candidateList) {
             denominator += Math.pow(trails[i][j], alpha) * Math.pow(1.0 / graph[i][j], beta)
 
-         //   log("1: T1: ${ trails[i][j] }")
-         //   log("1: G1: ${ 1.0 / graph[i][j] }")
+            //   log("1: T1: ${ trails[i][j] }")
+            //   log("1: G1: ${ 1.0 / graph[i][j] }")
         }
 
         val optimalNumber = Math.sqrt(candidateList.size.toDouble()).toInt() // 20%
@@ -218,8 +225,8 @@ class FarsightedMMASOptimization(
                 if (r == j)
                     continue
 
-               // log("2: T1: ${ trails[i][r] } + T2: ${trails[r][j]}")
-              //  log("2: G1: ${ 1.0 / graph[i][r] } + G2: ${1.0 / graph[r][j]}")
+                // log("2: T1: ${ trails[i][r] } + T2: ${trails[r][j]}")
+                //  log("2: G1: ${ 1.0 / graph[i][r] } + G2: ${1.0 / graph[r][j]}")
 
                 denominator += Math.pow(
                     trails[i][r] * trails[r][j],
@@ -259,8 +266,6 @@ class FarsightedMMASOptimization(
         if (sumOne + sumTwo > 2)
             throw java.lang.RuntimeException("Wtf")
     }
-
-
 
 
 //    fun calculateProbabilitiesNew(ant: Ant) {
@@ -439,7 +444,12 @@ class FarsightedMMASOptimization(
     // determine current or global best
 
     fun determineBest(): Ant {
-        return ants.minBy { it.trailLength(graph) / Math.pow(it.currentIndex.toDouble(), 2.0) }!! /// it.currentIndex }!!
+        return ants.minBy {
+            it.trailLength(graph) / Math.pow(
+                it.currentIndex.toDouble(),
+                2.0
+            )
+        }!! /// it.currentIndex }!!
     }
 
     // update pheromones
@@ -453,7 +463,10 @@ class FarsightedMMASOptimization(
 
             val ant = determineBest()
             if (ant.containsRoute(i, j))
-                deltaTau += Q / (ant.trailLength(graph) / Math.pow(ant.currentIndex.toDouble(), 2.0)) /// ant.currentIndex)
+                deltaTau += Q / (ant.trailLength(graph) / Math.pow(
+                    ant.currentIndex.toDouble(),
+                    2.0
+                )) /// ant.currentIndex)
 
             return deltaTau
         }
