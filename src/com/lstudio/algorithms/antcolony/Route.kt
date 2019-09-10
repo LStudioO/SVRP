@@ -2,11 +2,14 @@ package com.lstudio.algorithms.antcolony
 
 import com.lstudio.algorithms.antcolony.TaskSettings.alpha
 import com.lstudio.algorithms.antcolony.TaskSettings.beta
+import com.lstudio.algorithms.antcolony.TaskSettings.logging
 import com.lstudio.algorithms.antcolony.TaskSettings.randomFactor
 import com.lstudio.utils.random
 import java.util.*
 import java.util.stream.IntStream
 import kotlin.collections.ArrayList
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class Route(
     val size: Int, distanceMatrix: Array<DoubleArray>,
@@ -42,7 +45,6 @@ class Route(
             ant.visitCity(city)
             candidateList.remove(city)
         }
-        log("Candidates: ${candidateList.size}")
         log("Ants were set upped and located to start depots")
     }
 
@@ -67,7 +69,6 @@ class Route(
     }
 
     private fun moveAnts() {
-        log("Move started")
         loop@ while (ants.any { !it.isRouteCompleted }) {
             for (i in (0 until numberOfAnts).shuffled()) {
                 val ant = ants[i]
@@ -129,10 +130,10 @@ class Route(
         val customers = candidateList.filter { cities[it].type == CityType.CUSTOMER }
 
         for (j in candidateList) {
-            denominator += Math.pow(trails[i][j], alpha) * Math.pow(1.0 / graph[i][j], beta)
+            denominator += trails[i][j].pow(alpha) * (1.0 / graph[i][j]).pow(beta)
         }
 
-        val optimalNumber = Math.sqrt(candidateList.size.toDouble()).toInt() // 20%
+        val optimalNumber = sqrt(candidateList.size.toDouble()).toInt() // 20%
 
         val indexes1 = customers.shuffled().take(optimalNumber)
         val indexes2 = candidateList.shuffled().take(optimalNumber)
@@ -146,10 +147,9 @@ class Route(
                 if (r == j)
                     continue
 
-                denominator += Math.pow(
-                    trails[i][r] * trails[r][j],
-                    alpha
-                ) * Math.pow(1.0 / graph[i][r] + 1.0 / graph[r][j], beta)
+                denominator += (trails[i][r] * trails[r][j]).pow(alpha) * (1.0 / graph[i][r] + 1.0 / graph[r][j]).pow(
+                    beta
+                )
             }
         }
 
@@ -165,28 +165,29 @@ class Route(
                     continue
 
                 val list = arrayListOf(r, j)
-                probabilities[list] = Math.pow(trails[i][r] * trails[r][j], alpha) * Math.pow(
-                    1.0 / graph[i][r] + (1.0 / graph[r][j]),
-                    beta
-                ) / denominator
+                probabilities[list] =
+                    (trails[i][r] * trails[r][j]).pow(alpha) * (1.0 / graph[i][r] + (1.0 / graph[r][j])).pow(
+                        beta
+                    ) / denominator
             }
         }
 
         for (j in candidateList) {
             val list = arrayListOf(j)
-            probabilities[list] = Math.pow(trails[i][j], alpha) * Math.pow(1.0 / graph[i][j], beta) / denominator
+            probabilities[list] = trails[i][j].pow(alpha) * (1.0 / graph[i][j]).pow(beta) / denominator
         }
 
         var sumOne = 0.0
         var sumTwo = 0.0
-        probabilities.filter { key -> key.key.size == 2 }.forEach { t, u -> sumOne += u }
-        probabilities.filter { key -> key.key.size == 1 }.forEach { t, u -> sumTwo += u }
+        probabilities.filter { key -> key.key.size == 2 }.forEach { (_, u) -> sumOne += u }
+        probabilities.filter { key -> key.key.size == 1 }.forEach { (_, u) -> sumTwo += u }
         if (sumOne + sumTwo > 2)
             throw java.lang.RuntimeException("Wtf")
     }
 
     private fun log(info: String) {
-        System.out.println(info)
+        if (logging)
+            println(info)
     }
 
     fun constructSolution(): List<Ant> {

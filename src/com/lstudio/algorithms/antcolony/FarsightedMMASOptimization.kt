@@ -1,14 +1,21 @@
 package com.lstudio.algorithms.antcolony
 
 import com.lstudio.algorithms.antcolony.TaskSettings.Q
+import com.lstudio.algorithms.antcolony.TaskSettings.antCapacity
+import com.lstudio.algorithms.antcolony.TaskSettings.iterations
+import com.lstudio.algorithms.antcolony.TaskSettings.logging
 import com.lstudio.algorithms.antcolony.TaskSettings.rho
-import com.lstudio.algorithms.antcolony.TaskSettings.stagnation1
+import com.lstudio.algorithms.antcolony.TaskSettings.routeIterations
+import com.lstudio.algorithms.antcolony.TaskSettings.stagnationConst
 import com.lstudio.algorithms.antcolony.TaskSettings.tMax
 import com.lstudio.algorithms.antcolony.TaskSettings.tMin
+import com.lstudio.algorithms.antcolony.TaskSettings.visualize
 import com.lstudio.algorithms.ls.GreedySolver
 import com.lstudio.pointrestorer.DistMatrix
 import com.lstudio.pointrestorer.primitives.Point
 import com.lstudio.ui.Visualizer
+import kotlin.math.max
+import kotlin.math.min
 
 class FarsightedMMASOptimization(
     distanceMatrix: Array<DoubleArray>,
@@ -23,31 +30,38 @@ class FarsightedMMASOptimization(
     private val graph: Array<DoubleArray> = distanceMatrix
     private lateinit var cities: Array<City>
     private val trails: Array<DoubleArray>
-    private var candidateList = ArrayList<Int>()
-    private var antCapacity = 200
-    private var iterations = 5000
     private var minLength = Double.MAX_VALUE
-    private var routeIterations = 10
-    lateinit var bestSolution: List<Ant>
+
+    private var bestSolution: Solution? = null
+    private var stagnationBestSolution: Solution? = null
+    private lateinit var iterationBestSolution: Solution
+
+    // stagnation
+    private var stagnationValue = 0
+    private var stagnationCounter = 0
 
     init {
         numberOfCities = graph.size
-        candidateList.addAll((0 until graph.size))
         numberOfAnts = startDepots.size
         numberOfStartDepots = startDepots.size
         numberOfEndDepots = endDepots.keys.size
 
+        // create pheromone matrix
         trails = Array(numberOfCities) { DoubleArray(numberOfCities) }
-        //probabilities = DoubleArray(numberOfCities)
 
+        visualizePoints()
+    }
 
+    private fun visualizePoints() {
         val dMatrix = DistMatrix(graph)
         val points = dMatrix.restorePoints()
 
         parseCities(points!!)
 
-        val visualizer = Visualizer(cities)
-        visualizer.show()
+        if (visualize) {
+            val visualizer = Visualizer(cities)
+            visualizer.show()
+        }
     }
 
     private fun parseCities(points: Array<Point>) {
@@ -72,20 +86,7 @@ class FarsightedMMASOptimization(
         }
     }
 
-    // set paramethers
-
-
-    var bestSoFar: Ant? = null
-
-    // stagnation
-    var stagnation = 0
-
-    var stagnationCounter = 0
-
-    var bestAnt: Ant? = null
-
     // calculate t0, tMin, tMax
-
     private fun initMinMaxPheromone() {
         fun getCnn(): Double {
             val vehicleCapacity = 1000
@@ -109,7 +110,7 @@ class FarsightedMMASOptimization(
     }
 
     // initializing the pheromones
-    fun initializePheromones() {
+    private fun initializePheromones() {
         for (i in 0 until numberOfCities) {
             for (j in i until numberOfCities) {
                 if (i != j) {
@@ -121,26 +122,14 @@ class FarsightedMMASOptimization(
         log("Pheromone trails was initialized")
     }
 
-
-    private fun printCurrentSolution() {
-        TODO("unimplemented")
-//        println("Current solution:")
-//        for (i in 0 until ants.size) {
-//            println("Ant #${i + 1}:")
-//            ants[i].printTrail()
-//        }
-    }
-
-    fun run() {
+    private fun run() {
         initMinMaxPheromone()
         initializePheromones()
         runIterations()
-
-        println(minLength)
+        printResult()
     }
 
-    // iteration #1
-    fun runIterations() {
+    private fun runIterations() {
         val routes = ArrayList<Route>()
         for (k in 0 until routeIterations) {
             routes.add(
@@ -160,36 +149,27 @@ class FarsightedMMASOptimization(
 
         for (i in 0 until iterations) {
             try {
-                val best = routes.map { it.constructSolution() }.minBy { routeLength(it) }!!
-                // todo clone best
-                bestSolution = best
-
+                findBestIterationSolution(routes)
                 updatePheromones()
                 daemonActions()
-                printCurrentSolution()
-                printResult()
+                printIterationSolution()
             } catch (ex: Exception) {
                 log("ERROR: ${ex.message}")
             }
         }
-        log("Best length: $minLength")
     }
 
-    // determine current or global best
-    fun determineBest(): Ant {
+    private fun printIterationSolution() {
+        iterationBestSolution.print(graph)
+    }
 
-        TODO("unimplemented")
-
-//        return ants.minBy {
-//            it.trailLength(graph) / Math.pow(
-//                it.currentIndex.toDouble(),
-//                2.0
-//            )
-//        }!! /// it.currentIndex }!!
+    private fun findBestIterationSolution(routes: ArrayList<Route>) {
+        val best = routes.map { it.constructSolution() }.minBy { routeLength(it) }!!
+        iterationBestSolution = Solution(best.map { it.clone() })
     }
 
     // update pheromones
-    fun updatePheromones() {
+    private fun updatePheromones() {
         fun newEvaporationValue(i: Int, j: Int): Double {
             return (1.0 - rho) * trails[i][j]
         }
@@ -197,12 +177,9 @@ class FarsightedMMASOptimization(
         fun depositDeltaTau(i: Int, j: Int): Double {
             var deltaTau = 0.0
 
-            val ant = determineBest()
-            if (ant.containsRoute(i, j))
-                deltaTau += Q / (ant.trailLength(graph) / Math.pow(
-                    ant.currentIndex.toDouble(),
-                    2.0
-                )) /// ant.currentIndex)
+            if (iterationBestSolution.containsRoute(i, j)) {
+                deltaTau += Q / (iterationBestSolution.trailLength(graph) / numberOfCities)
+            }
 
             return deltaTau
         }
@@ -229,15 +206,12 @@ class FarsightedMMASOptimization(
     }
 
     // execute daemon actions: [UpdateTMinAndTMaxValues, UpdatePheromoneMatrix, RestartCheck after 1000 iterations
-    fun daemonActions() {
+    private fun daemonActions() {
         fun updateMinAndMaxValues(evaporation: Double) {
-
-
             fun updateMinAndMax() {
-
                 log("Yes. The tMin and tMax should be updated")
 
-                tMax = (1.0 / (evaporation * bestSoFar!!.trailLength(graph)))
+                tMax = (1.0 / (evaporation * bestSolution!!.trailLength(graph)))
                 tMin = tMax / 10.0
 
                 log("Now tMin=$tMin and tMax=$tMax")
@@ -246,12 +220,12 @@ class FarsightedMMASOptimization(
             log("Verifying if the pheromone limits should be updated")
 
             when {
-                bestSoFar == null -> {
-                    bestSoFar = determineBest().clone()
+                bestSolution == null -> {
+                    bestSolution = iterationBestSolution.clone()
                     updateMinAndMax()
                 }
-                bestSoFar!!.trailLength(graph) != determineBest().trailLength(graph) -> {
-                    bestSoFar = determineBest().clone()
+                bestSolution!!.trailLength(graph) > iterationBestSolution.trailLength(graph) -> {
+                    bestSolution = iterationBestSolution.clone()
                     updateMinAndMax()
                 }
                 else -> log("No. The tMin and tMax should be the same")
@@ -264,30 +238,30 @@ class FarsightedMMASOptimization(
             for (i in 0 until numberOfCities) {
                 for (j in i until numberOfCities) {
                     if (i != j) {
-                        trails[i][j] = Math.min(trails[i][j], tMax)
-                        trails[i][j] = Math.max(trails[i][j], tMin)
+                        trails[i][j] = min(trails[i][j], tMax)
+                        trails[i][j] = max(trails[i][j], tMin)
                         trails[j][i] = trails[i][j]
                     }
                 }
             }
         }
 
-        fun restartCheck(stagn: Int) {
-            stagnation = stagn
+        fun restartCheck(s: Int) {
+            stagnationValue = s
             log("Verifying if the pheromone matrix should be restarted")
 
-            if (bestAnt == null) {
-                bestAnt = bestSoFar!!.clone()
+            if (stagnationBestSolution == null) {
+                stagnationBestSolution = bestSolution!!.clone()
             }
 
-            if (bestAnt!!.trailLength(graph) == bestSoFar!!.trailLength(graph)) {
+            if (stagnationBestSolution!!.trailLength(graph) == bestSolution!!.trailLength(graph)) {
                 stagnationCounter++
             } else {
-                bestAnt = bestSoFar!!.clone()
+                stagnationBestSolution = bestSolution!!.clone()
                 stagnationCounter = 0
             }
 
-            if (stagnationCounter == stagnation) {
+            if (stagnationCounter == stagnationValue) {
                 log("The stagnation was reached. The pheromone matrix will be restarted")
                 initMinMaxPheromone()
                 initializePheromones()
@@ -297,13 +271,12 @@ class FarsightedMMASOptimization(
 
         updateMinAndMaxValues(rho)
         updatePheromoneMatrix()
-        restartCheck(stagnation1)
+        restartCheck(stagnationConst)
     }
 
-    // next iteration #2
-
-    fun log(info: String) {
-        System.out.println(info)
+    private fun log(info: String) {
+        if (logging)
+            println(info)
     }
 
     private fun routeLength(ants: List<Ant>): Double {
@@ -317,13 +290,13 @@ class FarsightedMMASOptimization(
     }
 
     private fun getCurrentLength(): Double {
-        return routeLength(bestSolution)
+        return bestSolution?.trailLength(graph) ?: 0.0
     }
 
     /**
      * Print current solution
      */
     private fun printResult() {
-        println("Length: ${getCurrentLength()}")
+        println("Best length: ${getCurrentLength()}")
     }
 }
