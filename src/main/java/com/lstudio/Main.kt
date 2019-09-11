@@ -1,8 +1,8 @@
 package com.lstudio
 
-import com.lstudio.algorithms.antcolony.AntColonyOptimization
-import com.lstudio.algorithms.antcolony.FarsightedMMASOptimization
-import com.lstudio.algorithms.antcolony.MMASOptimization
+import com.lstudio.algorithms.antcolony.optimization.AntColonyOptimization
+import com.lstudio.algorithms.antcolony.optimization.DefaultMMASOptimization
+import com.lstudio.algorithms.antcolony.optimization.FarsightedMMASOptimization
 import com.lstudio.algorithms.bruteforce.BruteforceSolver
 import com.lstudio.algorithms.ls.TabuSearchSolver
 import com.lstudio.data.TaskGenerator
@@ -40,7 +40,8 @@ object Main {
         val decision = input.nextInt()
         when (decision) {
             1 -> {
-                val antColony = AntColonyOptimization(weight, startDepots, endDepots)
+                val antColony =
+                    AntColonyOptimization(weight, startDepots, endDepots)
                 antColony.startAntOptimization()
             }
             2 -> {
@@ -52,11 +53,15 @@ object Main {
                 localSearch.print()
             }
             3 -> {
-                val antColony = MMASOptimization(weight, startDepots, endDepots)
+                val antColony = DefaultMMASOptimization(weight, startDepots, endDepots)
                 antColony.startAntOptimization()
             }
             4 -> {
-                val antColony = FarsightedMMASOptimization(weight, startDepots, endDepots)
+                val antColony = FarsightedMMASOptimization(
+                    weight,
+                    startDepots,
+                    endDepots
+                )
                 antColony.startAntOptimization()
             }
             5 -> {

@@ -1,5 +1,8 @@
-package com.lstudio.algorithms.antcolony
+package com.lstudio.algorithms.antcolony.optimization
 
+import com.lstudio.algorithms.antcolony.Ant
+import com.lstudio.algorithms.antcolony.City
+import com.lstudio.algorithms.antcolony.CityType
 import com.lstudio.pointrestorer.DistMatrix
 import com.lstudio.pointrestorer.primitives.Point
 import com.lstudio.ui.Visualizer

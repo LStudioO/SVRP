@@ -13,5 +13,5 @@ object TaskSettings {
     val iterations = 5000
     val routeIterations = 10
     val logging = false
-    val visualize = true
+    val visualize = false
 }

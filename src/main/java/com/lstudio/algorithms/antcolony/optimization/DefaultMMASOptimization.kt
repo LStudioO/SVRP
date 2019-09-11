@@ -1,15 +1,11 @@
-package com.lstudio.algorithms.antcolony
+package com.lstudio.algorithms.antcolony.optimization
 
-import com.lstudio.algorithms.antcolony.TaskSettings.Q
-import com.lstudio.algorithms.antcolony.TaskSettings.antCapacity
-import com.lstudio.algorithms.antcolony.TaskSettings.iterations
-import com.lstudio.algorithms.antcolony.TaskSettings.logging
-import com.lstudio.algorithms.antcolony.TaskSettings.rho
-import com.lstudio.algorithms.antcolony.TaskSettings.routeIterations
-import com.lstudio.algorithms.antcolony.TaskSettings.stagnationConst
-import com.lstudio.algorithms.antcolony.TaskSettings.tMax
-import com.lstudio.algorithms.antcolony.TaskSettings.tMin
-import com.lstudio.algorithms.antcolony.TaskSettings.visualize
+import com.lstudio.algorithms.antcolony.Ant
+import com.lstudio.algorithms.antcolony.City
+import com.lstudio.algorithms.antcolony.Solution
+import com.lstudio.algorithms.antcolony.TaskSettings
+import com.lstudio.algorithms.antcolony.route.AbstractRoute
+import com.lstudio.algorithms.antcolony.route.BasicRoute
 import com.lstudio.algorithms.ls.GreedySolver
 import com.lstudio.pointrestorer.DistMatrix
 import com.lstudio.pointrestorer.primitives.Point
@@ -17,20 +13,20 @@ import com.lstudio.ui.Visualizer
 import kotlin.math.max
 import kotlin.math.min
 
-class FarsightedMMASOptimization(
+open class DefaultMMASOptimization(
     distanceMatrix: Array<DoubleArray>,
-    private val startDepots: IntArray,
-    private val endDepots: HashMap<Int, Int>
+    val startDepots: IntArray,
+    val endDepots: HashMap<Int, Int>
 ) {
 
-    private val numberOfCities: Int
-    private val numberOfAnts: Int
-    private val numberOfStartDepots: Int
+    val numberOfCities: Int
+    val numberOfAnts: Int
+    val numberOfStartDepots: Int
     private val numberOfEndDepots: Int
-    private val graph: Array<DoubleArray> = distanceMatrix
-    private lateinit var cities: Array<City>
-    private val trails: Array<DoubleArray>
-    private var minLength = Double.MAX_VALUE
+    val graph: Array<DoubleArray> = distanceMatrix
+    lateinit var cities: Array<City>
+    val trails: Array<DoubleArray>
+    var minLength = Double.MAX_VALUE
 
     private var bestSolution: Solution? = null
     private var stagnationBestSolution: Solution? = null
@@ -58,7 +54,7 @@ class FarsightedMMASOptimization(
 
         parseCities(points!!)
 
-        if (visualize) {
+        if (TaskSettings.visualize) {
             val visualizer = Visualizer(cities)
             visualizer.show()
         }
@@ -100,13 +96,13 @@ class FarsightedMMASOptimization(
 
         fun getT0(): Double {
             val cnn = getCnn()
-            return 1.0 / (rho * cnn)
+            return 1.0 / (TaskSettings.rho * cnn)
         }
 
-        tMax = getT0()
-        tMin = tMax / 10
+        TaskSettings.tMax = getT0()
+        TaskSettings.tMin = TaskSettings.tMax / 10
 
-        log("Parameters was initialized. Now tMin=$tMin and tMax=$tMax")
+        log("Parameters was initialized. Now tMin=${TaskSettings.tMin} and tMax=${TaskSettings.tMax}")
     }
 
     // initializing the pheromones
@@ -114,7 +110,7 @@ class FarsightedMMASOptimization(
         for (i in 0 until numberOfCities) {
             for (j in i until numberOfCities) {
                 if (i != j) {
-                    trails[i][j] = tMax
+                    trails[i][j] = TaskSettings.tMax
                     trails[j][i] = trails[i][j]
                 }
             }
@@ -129,25 +125,29 @@ class FarsightedMMASOptimization(
         printResult()
     }
 
+    open fun createRoute(): AbstractRoute {
+        return BasicRoute(
+            graph.size,
+            graph,
+            numberOfAnts,
+            numberOfCities,
+            trails,
+            TaskSettings.antCapacity,
+            cities,
+            numberOfStartDepots,
+            startDepots
+        )
+    }
+
     private fun runIterations() {
-        val routes = ArrayList<Route>()
-        for (k in 0 until routeIterations) {
+        val routes = ArrayList<AbstractRoute>()
+        for (k in 0 until TaskSettings.routeIterations) {
             routes.add(
-                Route(
-                    graph.size,
-                    graph,
-                    numberOfAnts,
-                    numberOfCities,
-                    trails,
-                    antCapacity,
-                    cities,
-                    numberOfStartDepots,
-                    startDepots
-                )
+                createRoute()
             )
         }
 
-        for (i in 0 until iterations) {
+        for (i in 0 until TaskSettings.iterations) {
             try {
                 findBestIterationSolution(routes)
                 updatePheromones()
@@ -163,7 +163,7 @@ class FarsightedMMASOptimization(
         iterationBestSolution.print(graph)
     }
 
-    private fun findBestIterationSolution(routes: ArrayList<Route>) {
+    private fun findBestIterationSolution(routes: ArrayList<AbstractRoute>) {
         val best = routes.map { it.constructSolution() }.minBy { routeLength(it) }!!
         iterationBestSolution = Solution(best.map { it.clone() })
     }
@@ -171,14 +171,14 @@ class FarsightedMMASOptimization(
     // update pheromones
     private fun updatePheromones() {
         fun newEvaporationValue(i: Int, j: Int): Double {
-            return (1.0 - rho) * trails[i][j]
+            return (1.0 - TaskSettings.rho) * trails[i][j]
         }
 
         fun depositDeltaTau(i: Int, j: Int): Double {
             var deltaTau = 0.0
 
             if (iterationBestSolution.containsRoute(i, j)) {
-                deltaTau += Q / (iterationBestSolution.trailLength(graph) / numberOfCities)
+                deltaTau += TaskSettings.Q / (iterationBestSolution.trailLength(graph) / numberOfCities)
             }
 
             return deltaTau
@@ -211,10 +211,10 @@ class FarsightedMMASOptimization(
             fun updateMinAndMax() {
                 log("Yes. The tMin and tMax should be updated")
 
-                tMax = (1.0 / (evaporation * bestSolution!!.trailLength(graph)))
-                tMin = tMax / 10.0
+                TaskSettings.tMax = (1.0 / (evaporation * bestSolution!!.trailLength(graph)))
+                TaskSettings.tMin = TaskSettings.tMax / 10.0
 
-                log("Now tMin=$tMin and tMax=$tMax")
+                log("Now tMin=${TaskSettings.tMin} and tMax=${TaskSettings.tMax}")
             }
 
             log("Verifying if the pheromone limits should be updated")
@@ -238,8 +238,8 @@ class FarsightedMMASOptimization(
             for (i in 0 until numberOfCities) {
                 for (j in i until numberOfCities) {
                     if (i != j) {
-                        trails[i][j] = min(trails[i][j], tMax)
-                        trails[i][j] = max(trails[i][j], tMin)
+                        trails[i][j] = min(trails[i][j], TaskSettings.tMax)
+                        trails[i][j] = max(trails[i][j], TaskSettings.tMin)
                         trails[j][i] = trails[i][j]
                     }
                 }
@@ -269,13 +269,13 @@ class FarsightedMMASOptimization(
             }
         }
 
-        updateMinAndMaxValues(rho)
+        updateMinAndMaxValues(TaskSettings.rho)
         updatePheromoneMatrix()
-        restartCheck(stagnationConst)
+        restartCheck(TaskSettings.stagnationConst)
     }
 
     private fun log(info: String) {
-        if (logging)
+        if (TaskSettings.logging)
             println(info)
     }
 
