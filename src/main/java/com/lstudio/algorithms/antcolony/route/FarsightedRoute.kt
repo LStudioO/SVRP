@@ -61,8 +61,8 @@ class FarsightedRoute(
 
         val optimalNumber = sqrt(candidateList.size.toDouble()).toInt() // 20%
 
-        val indexes1 = customers.shuffled().take(optimalNumber)
-        val indexes2 = candidateList.shuffled().take(optimalNumber)
+        val indexes1 = customers
+        val indexes2 = candidateList
 
         // not all possible
         // generate all possible pairs (i,r), (r,j)
