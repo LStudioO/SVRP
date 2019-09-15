@@ -26,9 +26,9 @@ open class DefaultMMASOptimization(
     val graph: Array<DoubleArray> = distanceMatrix
     lateinit var cities: Array<City>
     val trails: Array<DoubleArray>
-    var minLength = Double.MAX_VALUE
+    private var minLength = Double.MAX_VALUE
 
-    private var bestSolution: Solution? = null
+    var bestSolution: Solution? = null
     private var stagnationBestSolution: Solution? = null
     private lateinit var iterationBestSolution: Solution
 
@@ -119,11 +119,17 @@ open class DefaultMMASOptimization(
     }
 
     private fun run() {
-        initMinMaxPheromone()
-        initializePheromones()
-        runIterations()
+        setup()
+        runIterations(TaskSettings.iterations)
         printResult()
     }
+
+
+    fun setup() {
+        initMinMaxPheromone()
+        initializePheromones()
+    }
+
 
     open fun createRoute(): AbstractRoute {
         return BasicRoute(
@@ -139,7 +145,7 @@ open class DefaultMMASOptimization(
         )
     }
 
-    private fun runIterations() {
+    fun runIterations(iterationsCount: Int) {
         val routes = ArrayList<AbstractRoute>()
         for (k in 0 until TaskSettings.routeIterations) {
             routes.add(
@@ -147,12 +153,12 @@ open class DefaultMMASOptimization(
             )
         }
 
-        for (i in 0 until TaskSettings.iterations) {
+        for (i in 0 until iterationsCount) {
             try {
                 findBestIterationSolution(routes)
                 updatePheromones()
                 daemonActions()
-                printIterationSolution()
+               // printIterationSolution()
             } catch (ex: Exception) {
                 log("ERROR: ${ex.message}")
             }
@@ -296,7 +302,15 @@ open class DefaultMMASOptimization(
     /**
      * Print current solution
      */
-    private fun printResult() {
+    fun printResult() {
         println("Best length: ${getCurrentLength()}")
+    }
+
+    fun applyMigrant(bestSolution: Solution) {
+        if (bestSolution.fitness <= iterationBestSolution.fitness) {
+            iterationBestSolution = bestSolution.clone()
+            updatePheromones()
+            daemonActions()
+        }
     }
 }

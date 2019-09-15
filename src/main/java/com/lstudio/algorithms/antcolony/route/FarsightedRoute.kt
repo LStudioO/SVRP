@@ -7,7 +7,6 @@ import com.lstudio.algorithms.antcolony.TaskSettings
 import com.lstudio.algorithms.antcolony.TaskSettings.randomFactor
 import com.lstudio.utils.random
 import kotlin.math.pow
-import kotlin.math.sqrt
 
 class FarsightedRoute(
     size: Int, distanceMatrix: Array<DoubleArray>,
@@ -58,8 +57,6 @@ class FarsightedRoute(
                 TaskSettings.beta
             )
         }
-
-        val optimalNumber = sqrt(candidateList.size.toDouble()).toInt() // 20%
 
         val indexes1 = customers
         val indexes2 = candidateList

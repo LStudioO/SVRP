@@ -1,5 +1,6 @@
 package com.lstudio
 
+import com.lstudio.algorithms.antcolony.island.IslandOptimization
 import com.lstudio.algorithms.antcolony.optimization.AntColonyOptimization
 import com.lstudio.algorithms.antcolony.optimization.DefaultMMASOptimization
 import com.lstudio.algorithms.antcolony.optimization.FarsightedMMASOptimization
@@ -8,6 +9,7 @@ import com.lstudio.algorithms.ls.TabuSearchSolver
 import com.lstudio.data.TaskGenerator
 import com.lstudio.data.TaskReader
 import java.util.*
+import kotlin.system.measureNanoTime
 
 object Main {
 
@@ -21,11 +23,12 @@ object Main {
         println("3 - MMAS")
         println("4 - MMAS FARSIGHTED")
         println("5 - BRUTEFORCE")
-        println("6 - TASK GENERATOR")
+        println("6 - ISLAND MMAS")
+        println("7 - TASK GENERATOR")
 
 
         val taskReader = TaskReader()
-        taskReader.readTask("tasks\\test_task\\test_task_data.txt")
+        taskReader.readTask("tasks\\test_task\\generated\\test_task_30_4_7.txt")
         System.out.println(
             "Task name: ${taskReader.name} \n" +
                     "City count: ${taskReader.cityCount}\n" +
@@ -57,18 +60,30 @@ object Main {
                 antColony.startAntOptimization()
             }
             4 -> {
-                val antColony = FarsightedMMASOptimization(
-                    weight,
-                    startDepots,
-                    endDepots
-                )
-                antColony.startAntOptimization()
+                measureNanoTime {
+                    val antColony = FarsightedMMASOptimization(
+                        weight,
+                        startDepots,
+                        endDepots
+                    )
+                    antColony.startAntOptimization()
+                }.also { println("Time: $it") }
             }
             5 -> {
                 val bruteforceSolver = BruteforceSolver(startDepots, endDepots, weight)
                 bruteforceSolver.solve()
             }
             6 -> {
+                measureNanoTime {
+                    val islandOptimization = IslandOptimization(
+                        weight,
+                        startDepots,
+                        endDepots
+                    )
+                    islandOptimization.start()
+                }.also { println("Time: $it") }
+            }
+            7 -> {
                 val taskGenerator = TaskGenerator()
                 val cin = Scanner(System.`in`)
                 while (true) {
