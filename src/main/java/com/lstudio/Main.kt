@@ -1,6 +1,7 @@
 package com.lstudio
 
 import com.lstudio.algorithms.antcolony.island.IslandOptimization
+import com.lstudio.algorithms.antcolony.island.RingTopology
 import com.lstudio.algorithms.antcolony.optimization.AntColonyOptimization
 import com.lstudio.algorithms.antcolony.optimization.DefaultMMASOptimization
 import com.lstudio.algorithms.antcolony.optimization.FarsightedMMASOptimization
@@ -92,6 +93,12 @@ object Main {
                     if (answer == -1)
                         break
                     taskGenerator.generate(answer, 10, 12)
+                }
+            }
+            8 -> {
+                val topology = RingTopology(5)
+                (0..4).forEach {
+                    println(topology.calculateNeighborhood(it))
                 }
             }
             else -> println("Unknown option")
