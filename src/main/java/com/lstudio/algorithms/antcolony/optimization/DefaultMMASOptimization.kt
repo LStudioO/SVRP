@@ -77,7 +77,6 @@ open class DefaultMMASOptimization(
      */
     fun startAntOptimization() {
         for (i in 1..1) {
-            println("Attempt #$i")
             run()
         }
     }
@@ -158,7 +157,7 @@ open class DefaultMMASOptimization(
                 findBestIterationSolution(routes)
                 updatePheromones()
                 daemonActions()
-               // printIterationSolution()
+                // printIterationSolution()
             } catch (ex: Exception) {
                 log("ERROR: ${ex.message}")
             }
@@ -295,7 +294,7 @@ open class DefaultMMASOptimization(
         return length
     }
 
-    private fun getCurrentLength(): Double {
+    fun getCurrentLength(): Double {
         return bestSolution?.trailLength(graph) ?: 0.0
     }
 

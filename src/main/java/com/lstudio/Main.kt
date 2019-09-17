@@ -1,7 +1,6 @@
 package com.lstudio
 
 import com.lstudio.algorithms.antcolony.island.IslandOptimization
-import com.lstudio.algorithms.antcolony.island.RingTopology
 import com.lstudio.algorithms.antcolony.optimization.AntColonyOptimization
 import com.lstudio.algorithms.antcolony.optimization.DefaultMMASOptimization
 import com.lstudio.algorithms.antcolony.optimization.FarsightedMMASOptimization
@@ -9,6 +8,7 @@ import com.lstudio.algorithms.bruteforce.BruteforceSolver
 import com.lstudio.algorithms.ls.TabuSearchSolver
 import com.lstudio.data.TaskGenerator
 import com.lstudio.data.TaskReader
+import java.io.File
 import java.util.*
 import kotlin.system.measureNanoTime
 
@@ -92,17 +92,108 @@ object Main {
                     val answer = cin.nextInt()
                     if (answer == -1)
                         break
-                    taskGenerator.generate(answer, 10, 12)
+                    taskGenerator.generate(answer, 6, 8)
                 }
             }
             8 -> {
-                val topology = RingTopology(5)
-                (0..4).forEach {
-                    println(topology.calculateNeighborhood(it))
-                }
+                runExperiments()
             }
             else -> println("Unknown option")
         }
         scanner.close()
+    }
+
+
+    private fun runExperiments() {
+        val tasks = arrayListOf(
+           // "tasks\\test_task\\generated\\test_task_10_2_2.txt",
+           //"tasks\\test_task\\generated\\test_task_16_3_4.txt",
+           // "tasks\\test_task\\generated\\test_task_30_4_7.txt",
+            "tasks\\test_task\\generated\\test_task_36_5_8.txt",
+            "tasks\\test_task\\generated\\test_task_43_5_8.txt",
+            "tasks\\test_task\\generated\\test_task_57_10_12.txt",
+            "tasks\\test_task\\generated\\test_task_70_6_8.txt"
+        )
+
+        tasks.forEach { taskPath ->
+            val taskReader = TaskReader()
+            taskReader.readTask(taskPath)
+            System.out.println(
+                "Task name: ${taskReader.name} \n" +
+                        "City count: ${taskReader.cityCount}\n" +
+                        "Vehicle сount: ${taskReader.vehicleCount}"
+            )
+
+            val weight = taskReader.weigths ?: return
+            val endDepots = taskReader.endDepots ?: return
+            val startDepots = taskReader.startDepots ?: return
+
+            val fileWriter =
+                File(taskPath.replace(".txt", "_experiments.txt"))
+            fileWriter.delete()
+
+            fileWriter.appendText("Local Search \n")
+
+            for (i in 0 until 10) {
+                val tabuHorizon = 100
+                val startTimeMillis = System.nanoTime()
+                val localSearch = TabuSearchSolver(tabuHorizon, weight, startDepots, endDepots, 1000)
+                localSearch.solve()
+                val time = "Solution time: ${(System.nanoTime() - startTimeMillis)} nanoseconds\n"
+                println(time)
+                fileWriter.appendText(time)
+                localSearch.print()
+                fileWriter.appendText("Best Value:  ${localSearch.cost}\n\n")
+            }
+
+            fileWriter.appendText("MMAS \n")
+
+            for (i in 0 until 10) {
+                val startTimeMillis = System.nanoTime()
+                val antColony = DefaultMMASOptimization(
+                    weight,
+                    startDepots,
+                    endDepots
+                )
+                antColony.startAntOptimization()
+                val time = "Solution time: ${(System.nanoTime() - startTimeMillis)} nanoseconds\n"
+                println(time)
+                fileWriter.appendText(time)
+                fileWriter.appendText("Best Value:  ${antColony.getCurrentLength()}\n\n")
+            }
+
+            fileWriter.appendText("FARSIGHTED MMAS \n")
+
+            for (i in 0 until 10) {
+                val startTimeMillis = System.nanoTime()
+                val antColony = FarsightedMMASOptimization(
+                    weight,
+                    startDepots,
+                    endDepots
+                )
+                antColony.startAntOptimization()
+                val time = "Solution time: ${(System.nanoTime() - startTimeMillis)} nanoseconds\n"
+                println(time)
+                fileWriter.appendText(time)
+                fileWriter.appendText("Best Value:  ${antColony.getCurrentLength()}\n\n")
+            }
+
+            fileWriter.appendText("ISLAND FARSIGHTED MMAS \n")
+
+            for (i in 0 until 10) {
+                val startTimeMillis = System.nanoTime()
+                val islandOptimization = IslandOptimization(
+                    weight,
+                    startDepots,
+                    endDepots
+                )
+                islandOptimization.start()
+                val time = "Solution time: ${(System.nanoTime() - startTimeMillis)} nanoseconds\n"
+                println(time)
+                fileWriter.appendText(time)
+                fileWriter.appendText("Best Value:  ${islandOptimization.bestValue}\n\n")
+            }
+
+        }
     }
 }

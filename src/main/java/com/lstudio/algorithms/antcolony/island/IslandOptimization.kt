@@ -15,6 +15,7 @@ class IslandOptimization(
     private var topology: Topology? = HypercubeTopology(islandsCount)
 ) {
 
+    var bestValue: Double = 0.0
     private var islandDaemon: IslandDaemon? = null
 
     @ObsoleteCoroutinesApi
@@ -73,7 +74,7 @@ class IslandOptimization(
             jobs.clear()
 
         }
-        acoList.minBy { it.bestSolution?.fitness ?: Double.MAX_VALUE }?.printResult()
+        bestValue = acoList.minBy { it.bestSolution?.fitness ?: Double.MAX_VALUE }?.getCurrentLength() ?: -1.0 //?.printResult()
     }
 
     companion object {
