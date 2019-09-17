@@ -1,6 +1,6 @@
-package com.lstudio.algorithms.antcolony.island
+package com.lstudio.algorithms.antcolony.island.topology
 
-class RingTopology(val size: Int) : Topology {
+class RingTopology(size: Int) : AbstractTopology(size) {
     override fun calculateNeighborhood(index: Int): List<Int> {
         val list = arrayListOf<Int>()
         val next = (index + 1) % size
