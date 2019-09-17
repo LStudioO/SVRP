@@ -14,7 +14,7 @@ class TabuSearchSolver(
     private val bestSolutionVehicles: Array<Vehicle>
 
     private var vehicles: Array<Vehicle>? = null
-    private var cost: Double = 0.toDouble()
+    var cost: Double = 0.toDouble()
 
     private var bestSolutionCost: Double = 0.toDouble()
 
@@ -25,7 +25,7 @@ class TabuSearchSolver(
             distances, vehicleCapacity
         )
         val result = greedySolver.solve()
-        result.print()
+        //result.print()
         this.vehicles = greedySolver.vehicles
         this.cost = greedySolver.cost
 
@@ -210,11 +210,11 @@ class TabuSearchSolver(
     }
 
     fun print() {
-        println("=========================================================")
-        println("Tabu search")
-        vehicles!!.forEach {
-            println(it.routes)
-        }
-        println("\nBest Value: " + this.cost + "\n")
+//        println("=========================================================")
+//        println("Tabu search")
+//        vehicles!!.forEach {
+//            println(it.routes)
+//        }
+        println("Best Value: " + this.cost + "\n")
     }
 }
