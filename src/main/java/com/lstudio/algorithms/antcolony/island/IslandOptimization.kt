@@ -1,16 +1,30 @@
 package com.lstudio.algorithms.antcolony.island
 
+import com.lstudio.algorithms.antcolony.island.topology.HypercubeTopology
+import com.lstudio.algorithms.antcolony.island.topology.Topology
 import com.lstudio.algorithms.antcolony.optimization.FarsightedMMASOptimization
 import kotlinx.coroutines.*
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class IslandOptimization(
     private val distanceMatrix: Array<DoubleArray>,
     private val startDepots: IntArray,
-    private val endDepots: HashMap<Int, Int>
+    private val endDepots: HashMap<Int, Int>,
+    private var topology: Topology? = HypercubeTopology(islandsCount)
 ) {
+
+    private var islandDaemon: IslandDaemon? = null
 
     @ObsoleteCoroutinesApi
     fun start() = runBlocking {
+
+        // init island daemon if needed
+        topology?.let {
+            islandDaemon = IslandDaemon(it)
+        }
+
         // create instances of ACO
         val acoList = arrayListOf<FarsightedMMASOptimization>()
 
@@ -37,17 +51,27 @@ class IslandOptimization(
             jobs.clear()
 
             // migration phase
-
-            acoList.minBy { it.bestSolution?.fitness ?: Double.MAX_VALUE }?.bestSolution?.let { bestSolution ->
-                acoList.forEach { aco ->
-                    jobs.add(CoroutineScope(context).async {
-                        aco.applyMigrant(bestSolution)
-                    })
+            val migrants =
+                if (islandDaemon == null) {
+                    arrayListOf(acoList.minBy { it.bestSolution?.fitness ?: Double.MAX_VALUE }?.bestSolution)
+                } else {
+                    islandDaemon?.getMigrants(acoList)
                 }
 
-                jobs.awaitAll()
-                jobs.clear()
+            acoList.forEachIndexed { index, aco ->
+                migrants?.let { migrants ->
+                    val k = if (migrants.size == 1) 0 else index
+                    val bestSolution = migrants[k]
+                    if (bestSolution != null)
+                        jobs.add(CoroutineScope(context).async {
+                            aco.applyMigrant(bestSolution)
+                        })
+                }
             }
+
+            jobs.awaitAll()
+            jobs.clear()
+
         }
         acoList.minBy { it.bestSolution?.fitness ?: Double.MAX_VALUE }?.printResult()
     }
