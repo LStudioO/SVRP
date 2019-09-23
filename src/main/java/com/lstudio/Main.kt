@@ -6,6 +6,7 @@ import com.lstudio.algorithms.antcolony.optimization.DefaultMMASOptimization
 import com.lstudio.algorithms.antcolony.optimization.FarsightedMMASOptimization
 import com.lstudio.algorithms.bruteforce.BruteforceSolver
 import com.lstudio.algorithms.ls.TabuSearchSolver
+import com.lstudio.algorithms.rvm.RVM
 import com.lstudio.data.TaskGenerator
 import com.lstudio.data.TaskReader
 import java.io.File
@@ -26,10 +27,11 @@ object Main {
         println("5 - BRUTEFORCE")
         println("6 - ISLAND MMAS")
         println("7 - TASK GENERATOR")
-
+        println("8 - RUN EXPERIMENTS")
+        println("9 - FIND PARAMETERS")
 
         val taskReader = TaskReader()
-        taskReader.readTask("tasks\\test_task\\generated\\test_task_30_4_7.txt")
+        taskReader.readTask("tasks\\test_task\\generated\\test_task_16_3_4.txt")
         System.out.println(
             "Task name: ${taskReader.name} \n" +
                     "City count: ${taskReader.cityCount}\n" +
@@ -88,7 +90,7 @@ object Main {
                 val taskGenerator = TaskGenerator()
                 val cin = Scanner(System.`in`)
                 while (true) {
-                    System.out.println("Enter customers count")
+                    println("Enter customers count")
                     val answer = cin.nextInt()
                     if (answer == -1)
                         break
@@ -98,6 +100,12 @@ object Main {
             8 -> {
                 runExperiments()
             }
+            9 -> {
+                val rvm = RVM { DefaultMMASOptimization(weight, startDepots, endDepots) }
+                val result = rvm.calculate()
+                println(result.first.joinToString { "$it | " })
+                println(result.second)
+            }
             else -> println("Unknown option")
         }
         scanner.close()
@@ -105,10 +113,18 @@ object Main {
 
 
     private fun runExperiments() {
+        // best params
+        // alpha = 1.5700000000000012
+        // beta = 0.5500000000000004
+        // rho = 0.05
+        // stagnationIterationCount = 100.0
+        // randomFactor = 0.012
+        // antIterations = 7.0
+
         val tasks = arrayListOf(
-           // "tasks\\test_task\\generated\\test_task_10_2_2.txt",
-           //"tasks\\test_task\\generated\\test_task_16_3_4.txt",
-           // "tasks\\test_task\\generated\\test_task_30_4_7.txt",
+            // "tasks\\test_task\\generated\\test_task_10_2_2.txt",
+            //"tasks\\test_task\\generated\\test_task_16_3_4.txt",
+            // "tasks\\test_task\\generated\\test_task_30_4_7.txt",
             "tasks\\test_task\\generated\\test_task_36_5_8.txt",
             "tasks\\test_task\\generated\\test_task_43_5_8.txt",
             "tasks\\test_task\\generated\\test_task_57_10_12.txt",
@@ -118,11 +134,9 @@ object Main {
         tasks.forEach { taskPath ->
             val taskReader = TaskReader()
             taskReader.readTask(taskPath)
-            System.out.println(
-                "Task name: ${taskReader.name} \n" +
+            println("Task name: ${taskReader.name} \n" +
                         "City count: ${taskReader.cityCount}\n" +
-                        "Vehicle сount: ${taskReader.vehicleCount}"
-            )
+                        "Vehicle сount: ${taskReader.vehicleCount}")
 
             val weight = taskReader.weigths ?: return
             val endDepots = taskReader.endDepots ?: return
@@ -193,7 +207,6 @@ object Main {
                 fileWriter.appendText(time)
                 fileWriter.appendText("Best Value:  ${islandOptimization.bestValue}\n\n")
             }
-
         }
     }
 }

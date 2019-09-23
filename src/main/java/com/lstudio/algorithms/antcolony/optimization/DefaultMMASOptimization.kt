@@ -29,8 +29,14 @@ open class DefaultMMASOptimization(
     private var minLength = Double.MAX_VALUE
 
     var bestSolution: Solution? = null
+        set(value) {
+            field = value
+            iterationsWithoutImprovement = 0
+        }
     private var stagnationBestSolution: Solution? = null
     private lateinit var iterationBestSolution: Solution
+
+    private var iterationsWithoutImprovement = 0
 
     // stagnation
     private var stagnationValue = 0
@@ -152,12 +158,12 @@ open class DefaultMMASOptimization(
             )
         }
 
-        for (i in 0 until iterationsCount) {
+        while (iterationsWithoutImprovement < iterationsCount) {
             try {
                 findBestIterationSolution(routes)
                 updatePheromones()
                 daemonActions()
-                // printIterationSolution()
+                iterationsWithoutImprovement++
             } catch (ex: Exception) {
                 log("ERROR: ${ex.message}")
             }
@@ -276,7 +282,7 @@ open class DefaultMMASOptimization(
 
         updateMinAndMaxValues(TaskSettings.rho)
         updatePheromoneMatrix()
-        restartCheck(TaskSettings.stagnationConst)
+        restartCheck(TaskSettings.stagnationIterationCount)
     }
 
     private fun log(info: String) {
