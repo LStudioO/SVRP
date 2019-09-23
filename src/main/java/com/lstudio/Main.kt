@@ -1,5 +1,6 @@
 package com.lstudio
 
+import com.lstudio.algorithms.antcolony.TaskSettings
 import com.lstudio.algorithms.antcolony.island.IslandOptimization
 import com.lstudio.algorithms.antcolony.optimization.DefaultMMASOptimization
 import com.lstudio.algorithms.antcolony.optimization.FarsightedMMASOptimization
@@ -10,7 +11,6 @@ import com.lstudio.data.TaskGenerator
 import com.lstudio.data.TaskReader
 import java.io.File
 import java.util.*
-import kotlin.system.measureNanoTime
 
 object Main {
 
@@ -30,9 +30,11 @@ object Main {
 
         val taskReader = TaskReader()
         taskReader.readTask("tasks\\test_task\\generated\\test_task_16_3_4.txt")
-        println("Task name: ${taskReader.name} \n" +
+        println(
+            "Task name: ${taskReader.name} \n" +
                     "City count: ${taskReader.cityCount}\n" +
-                    "Vehicle сount: ${taskReader.vehicleCount}")
+                    "Vehicle сount: ${taskReader.vehicleCount}"
+        )
 
         val weight = taskReader.weigths ?: return
         val endDepots = taskReader.endDepots ?: return
@@ -48,10 +50,8 @@ object Main {
             }
             2 -> {
                 val tabuHorizon = 100
-                val startTimeMillis = System.currentTimeMillis()
                 val localSearch = TabuSearchSolver(tabuHorizon, weight, startDepots, endDepots, 1000)
                 localSearch.solve()
-                println("Solution time: ${(System.currentTimeMillis() - startTimeMillis)} milliseconds")
                 localSearch.print()
             }
             3 -> {
@@ -59,28 +59,24 @@ object Main {
                 antColony.startAntOptimization()
             }
             4 -> {
-                measureNanoTime {
-                    val antColony = FarsightedMMASOptimization(
-                        weight,
-                        startDepots,
-                        endDepots
-                    )
-                    antColony.startAntOptimization()
-                }.also { println("Time: $it") }
+                val antColony = FarsightedMMASOptimization(
+                    weight,
+                    startDepots,
+                    endDepots
+                )
+                antColony.startAntOptimization()
             }
             5 -> {
                 val bruteforceSolver = BruteforceSolver(startDepots, endDepots, weight)
                 bruteforceSolver.solve()
             }
             6 -> {
-                measureNanoTime {
-                    val islandOptimization = IslandOptimization(
-                        weight,
-                        startDepots,
-                        endDepots
-                    )
-                    islandOptimization.start()
-                }.also { println("Time: $it") }
+                val islandOptimization = IslandOptimization(
+                    weight,
+                    startDepots,
+                    endDepots
+                )
+                islandOptimization.start()
             }
             7 -> {
                 val taskGenerator = TaskGenerator()
@@ -104,13 +100,15 @@ object Main {
 
     private fun runExperiments() {
         // best params
-        // alpha = 1.5700000000000012
-        // beta = 0.5500000000000004
-        // rho = 0.05
-        // stagnationIterationCount = 100.0
-        // randomFactor = 0.012
-        // antIterations = 7.0
-
+        with(TaskSettings) {
+            alpha =  1.57
+            beta =0.55
+            rho = 0.05
+            stagnationIterationCount = 1000
+            randomFactor = 0.012
+            routeIterations = 7
+        }
+        
         val tasks = arrayListOf(
             // "tasks\\test_task\\generated\\test_task_10_2_2.txt",
             //"tasks\\test_task\\generated\\test_task_16_3_4.txt",
