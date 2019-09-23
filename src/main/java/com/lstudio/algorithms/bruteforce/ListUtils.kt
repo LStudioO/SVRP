@@ -1,6 +1,6 @@
 package com.lstudio.algorithms.bruteforce
 
-import java.util.ArrayList
+import java.util.*
 
 fun permutations(original: MutableList<Int>): ArrayList<ArrayList<Int>> {
     if (original.size == 0) {

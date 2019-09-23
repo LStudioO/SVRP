@@ -1,6 +1,6 @@
 package com.lstudio.algorithms.bruteforce
 
-import java.util.ArrayList
+import java.util.*
 
 internal object ListPartitioner {
     /**

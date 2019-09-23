@@ -2,13 +2,9 @@ package com.lstudio.ui
 
 import com.lstudio.algorithms.antcolony.City
 import com.lstudio.algorithms.antcolony.CityType
-import java.awt.BorderLayout
-import java.awt.Color
-import java.awt.Graphics
-import java.awt.Graphics2D
+import java.awt.*
 import javax.swing.JFrame
 import javax.swing.JPanel
-import java.awt.GraphicsEnvironment
 
 class Visualizer(private val cities: Array<City>) {
     private val frame: JFrame = JFrame("Points")

@@ -1,7 +1,6 @@
 package com.lstudio
 
 import com.lstudio.algorithms.antcolony.island.IslandOptimization
-import com.lstudio.algorithms.antcolony.optimization.AntColonyOptimization
 import com.lstudio.algorithms.antcolony.optimization.DefaultMMASOptimization
 import com.lstudio.algorithms.antcolony.optimization.FarsightedMMASOptimization
 import com.lstudio.algorithms.bruteforce.BruteforceSolver
@@ -20,7 +19,7 @@ object Main {
     fun main(args: Array<String>) {
         val scanner = Scanner(System.`in`)
         println("Run algorithm:")
-        println("1 - AS")
+        println("1 - FIND PARAMETERS")
         println("2 - LS")
         println("3 - MMAS")
         println("4 - MMAS FARSIGHTED")
@@ -28,27 +27,24 @@ object Main {
         println("6 - ISLAND MMAS")
         println("7 - TASK GENERATOR")
         println("8 - RUN EXPERIMENTS")
-        println("9 - FIND PARAMETERS")
 
         val taskReader = TaskReader()
         taskReader.readTask("tasks\\test_task\\generated\\test_task_16_3_4.txt")
-        System.out.println(
-            "Task name: ${taskReader.name} \n" +
+        println("Task name: ${taskReader.name} \n" +
                     "City count: ${taskReader.cityCount}\n" +
-                    "Vehicle сount: ${taskReader.vehicleCount}"
-        )
+                    "Vehicle сount: ${taskReader.vehicleCount}")
 
         val weight = taskReader.weigths ?: return
         val endDepots = taskReader.endDepots ?: return
         val startDepots = taskReader.startDepots ?: return
 
         val input = Scanner(System.`in`)
-        val decision = input.nextInt()
-        when (decision) {
+        when (input.nextInt()) {
             1 -> {
-                val antColony =
-                    AntColonyOptimization(weight, startDepots, endDepots)
-                antColony.startAntOptimization()
+                val rvm = RVM { DefaultMMASOptimization(weight, startDepots, endDepots) }
+                val result = rvm.calculate()
+                println(result.first.joinToString { "$it | " })
+                println(result.second)
             }
             2 -> {
                 val tabuHorizon = 100
@@ -100,12 +96,6 @@ object Main {
             8 -> {
                 runExperiments()
             }
-            9 -> {
-                val rvm = RVM { DefaultMMASOptimization(weight, startDepots, endDepots) }
-                val result = rvm.calculate()
-                println(result.first.joinToString { "$it | " })
-                println(result.second)
-            }
             else -> println("Unknown option")
         }
         scanner.close()
@@ -134,9 +124,11 @@ object Main {
         tasks.forEach { taskPath ->
             val taskReader = TaskReader()
             taskReader.readTask(taskPath)
-            println("Task name: ${taskReader.name} \n" +
+            println(
+                "Task name: ${taskReader.name} \n" +
                         "City count: ${taskReader.cityCount}\n" +
-                        "Vehicle сount: ${taskReader.vehicleCount}")
+                        "Vehicle сount: ${taskReader.vehicleCount}"
+            )
 
             val weight = taskReader.weigths ?: return
             val endDepots = taskReader.endDepots ?: return

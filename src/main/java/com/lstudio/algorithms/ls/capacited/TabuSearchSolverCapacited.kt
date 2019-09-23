@@ -2,9 +2,7 @@ package com.lstudio.algorithms.ls.capacited
 
 import com.lstudio.algorithms.ls.model.Node
 import com.lstudio.algorithms.ls.model.Vehicle
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.Random
+import java.util.*
 
 class TabuSearchSolverCapacited(
     private val tabuHorizon: Int, private val distances: Array<DoubleArray>, startDepots: IntArray,

@@ -3,8 +3,8 @@ package com.lstudio.algorithms.bruteforce
 import com.lstudio.algorithms.bruteforce.ListPartitioner.getAllPartitions
 import com.lstudio.algorithms.bruteforce.ListPartitioner.getAllPlacements
 import com.lstudio.algorithms.ls.model.Vehicle
-import java.util.HashMap
-import java.util.concurrent.TimeUnit
+import java.util.*
+import kotlin.collections.ArrayList
 
 class BruteforceSolver internal constructor(
     startDepots: IntArray, private val endDepots: HashMap<Int, Int>,

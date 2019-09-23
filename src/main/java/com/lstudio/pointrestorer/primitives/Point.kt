@@ -1,8 +1,8 @@
 package com.lstudio.pointrestorer.primitives
+
 import com.lstudio.pointrestorer.ComparatorContext
 
 class Point
-
 @JvmOverloads constructor(var x: Double, var y: Double, var id: Int = 0) {
 
     fun distance(point: Point): Double {

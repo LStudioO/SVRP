@@ -125,7 +125,7 @@ open class DefaultMMASOptimization(
 
     private fun run() {
         setup()
-        runIterations(TaskSettings.iterations)
+        runIterations(TaskSettings.iterationsWithoutImprovement)
         printResult()
     }
 

@@ -1,7 +1,5 @@
 package com.lstudio.algorithms.antcolony.island.topology
 
-import java.lang.Exception
-
 abstract class AbstractTopology(val size: Int) : Topology {
     private val connectionGraph: HashMap<Int, List<Int>> = HashMap(size)
 

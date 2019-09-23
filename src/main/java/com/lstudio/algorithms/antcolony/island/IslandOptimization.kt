@@ -4,9 +4,6 @@ import com.lstudio.algorithms.antcolony.island.topology.HypercubeTopology
 import com.lstudio.algorithms.antcolony.island.topology.Topology
 import com.lstudio.algorithms.antcolony.optimization.FarsightedMMASOptimization
 import kotlinx.coroutines.*
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class IslandOptimization(
     private val distanceMatrix: Array<DoubleArray>,
@@ -74,7 +71,8 @@ class IslandOptimization(
             jobs.clear()
 
         }
-        bestValue = acoList.minBy { it.bestSolution?.fitness ?: Double.MAX_VALUE }?.getCurrentLength() ?: -1.0 //?.printResult()
+        bestValue =
+            acoList.minBy { it.bestSolution?.fitness ?: Double.MAX_VALUE }?.getCurrentLength() ?: -1.0 //?.printResult()
     }
 
     companion object {

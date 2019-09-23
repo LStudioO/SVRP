@@ -42,9 +42,9 @@ class Circle(var center: Point?, var radius: Double) {
     companion object {
         fun getIntersectionPoints(c1: Circle, c2: Circle, id: Int): Array<Point>? {
             val points = getIntersectionPoints(c1, c2) ?: return null
-                for (p in points) {
-                    p.id = id
-                }
+            for (p in points) {
+                p.id = id
+            }
 
             return points
         }
@@ -83,7 +83,9 @@ class Circle(var center: Point?, var radius: Double) {
                     val y0 = y1 + aDivD * y2SubY1
                     val sqrR1SubSqrA = r1 * r1 - a * a
                     val h: Double =
-                        if (ComparatorContext.DOUBLE_COMPARATOR.equalsZero(sqrR1SubSqrA)) 0.0 else Math.sqrt(sqrR1SubSqrA)
+                        if (ComparatorContext.DOUBLE_COMPARATOR.equalsZero(sqrR1SubSqrA)) 0.0 else Math.sqrt(
+                            sqrR1SubSqrA
+                        )
                     val hDivD = h / d
                     val xOffset = hDivD * y2SubY1
                     val yOffset = hDivD * x2SubX1

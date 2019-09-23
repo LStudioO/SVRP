@@ -1,7 +1,5 @@
 package com.lstudio.algorithms.antcolony.island.topology
 
-import java.lang.Exception
-
 class HypercubeTopology(size: Int) : AbstractTopology(size) {
     init {
         if (size % 2 != 0)
@@ -9,8 +7,9 @@ class HypercubeTopology(size: Int) : AbstractTopology(size) {
     }
 
     override fun calculateNeighborhood(index: Int): List<Int> {
-        return (0 until size).filter { it != index }. filter {
+        return (0 until size).filter { it != index }.filter {
             val n = index xor it
-            ((n and (n - 1)) == 0) }
+            ((n and (n - 1)) == 0)
+        }
     }
 }

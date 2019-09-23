@@ -9,7 +9,7 @@ class IslandDaemon(private val topology: Topology) {
         topology.buildConnectionGraph()
     }
 
-    fun getMigrants(acoList: List<DefaultMMASOptimization>) : List<Solution> {
+    fun getMigrants(acoList: List<DefaultMMASOptimization>): List<Solution> {
         return acoList.mapIndexed { index, _ ->
             val migrants = topology.getNeighborhood(index).mapNotNull { acoList[it].bestSolution?.clone() }
             migrants.minBy { it.fitness }!!

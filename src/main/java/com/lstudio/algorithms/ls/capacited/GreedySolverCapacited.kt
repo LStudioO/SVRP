@@ -2,7 +2,8 @@ package com.lstudio.algorithms.ls.capacited
 
 import com.lstudio.algorithms.ls.model.Node
 import com.lstudio.algorithms.ls.model.Vehicle
-import java.util.HashMap
+import java.util.*
+import kotlin.collections.ArrayList
 
 class GreedySolverCapacited internal constructor(
     startDepots: IntArray, private val endDepots: HashMap<Int, Int>,

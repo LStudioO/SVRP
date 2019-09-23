@@ -2,8 +2,7 @@ package com.lstudio.pointrestorer
 
 import com.lstudio.pointrestorer.primitives.Circle
 import com.lstudio.pointrestorer.primitives.Point
-import java.util.Arrays
-import java.util.LinkedList
+import java.util.*
 
 class DistMatrix(private val pointsNumber: Int) {
 

@@ -9,9 +9,9 @@ object TaskSettings {
     var routeIterations = 10
     var tMax = 0.0
     var tMin = 0.0
-    val Q = 1.0
-    val antCapacity = 200
-    val iterations = 100
-    val logging = false
-    val visualize = false
+    const val Q = 1.0
+    const val antCapacity = 200
+    const val iterationsWithoutImprovement = 100
+    const val logging = false
+    const val visualize = false
 }

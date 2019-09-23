@@ -1,6 +1,6 @@
 package com.lstudio.algorithms.ls.model
 
-import java.util.ArrayList
+import java.util.*
 
 internal class Vehicle(private val capacity: Int) {
     var routes = ArrayList<Node>()
