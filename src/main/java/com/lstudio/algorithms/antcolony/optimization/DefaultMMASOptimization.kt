@@ -18,7 +18,6 @@ open class DefaultMMASOptimization(
     val startDepots: IntArray,
     val endDepots: HashMap<Int, Int>
 ) {
-
     val numberOfCities: Int
     val numberOfAnts: Int
     val numberOfStartDepots: Int
@@ -42,6 +41,8 @@ open class DefaultMMASOptimization(
     private var stagnationValue = 0
     private var stagnationCounter = 0
 
+    private val visualizer: Visualizer
+
     init {
         numberOfCities = graph.size
         numberOfAnts = startDepots.size
@@ -51,19 +52,23 @@ open class DefaultMMASOptimization(
         // create pheromone matrix
         trails = Array(numberOfCities) { DoubleArray(numberOfCities) }
 
-        visualizePoints()
-    }
+        prepareCitiesForVisualization()
 
-    private fun visualizePoints() {
-        val dMatrix = DistMatrix(graph)
-        val points = dMatrix.restorePoints()
-
-        parseCities(points!!)
+        visualizer = Visualizer(cities)
 
         if (TaskSettings.visualize) {
-            val visualizer = Visualizer(cities)
             visualizer.show()
         }
+    }
+
+    private fun prepareCitiesForVisualization() {
+        val dMatrix = DistMatrix(graph)
+        val points = dMatrix.restorePoints()
+        parseCities(points!!)
+    }
+
+    private fun visualizeSolution(solution: Solution) {
+        visualizer.showSolution(solution)
     }
 
     private fun parseCities(points: Array<Point>) {
@@ -126,6 +131,9 @@ open class DefaultMMASOptimization(
     private fun run() {
         setup()
         runIterations(TaskSettings.iterationsWithoutImprovement)
+        bestSolution?.let {
+            visualizeSolution(it)
+        }
         printResult()
     }
 
@@ -177,6 +185,7 @@ open class DefaultMMASOptimization(
     private fun findBestIterationSolution(routes: ArrayList<AbstractRoute>) {
         val best = routes.map { it.constructSolution() }.minBy { routeLength(it) }!!
         iterationBestSolution = Solution(best.map { it.clone() })
+        visualizeSolution(iterationBestSolution)
     }
 
     // update pheromones

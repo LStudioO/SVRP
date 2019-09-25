@@ -1,6 +1,6 @@
 package com.lstudio.algorithms.antcolony
 
-class Solution(private val ants: List<Ant>) {
+class Solution(val ants: List<Ant>) {
 
     var fitness = 0.0
 

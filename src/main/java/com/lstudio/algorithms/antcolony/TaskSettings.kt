@@ -11,7 +11,7 @@ object TaskSettings {
     var tMin = 0.0
     const val Q = 1.0
     const val antCapacity = 200
-    const val iterationsWithoutImprovement = 100
+    const val iterationsWithoutImprovement = 1000
     const val logging = false
-    const val visualize = false
+    const val visualize = true
 }

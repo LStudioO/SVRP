@@ -2,32 +2,68 @@ package com.lstudio.ui
 
 import com.lstudio.algorithms.antcolony.City
 import com.lstudio.algorithms.antcolony.CityType
+import com.lstudio.algorithms.antcolony.Solution
 import java.awt.*
 import javax.swing.JFrame
 import javax.swing.JPanel
+import kotlin.math.absoluteValue
+import kotlin.math.sqrt
 
 class Visualizer(private val cities: Array<City>) {
     private val frame: JFrame = JFrame("Points")
     private var width: Int
     private var height: Int
 
-    private val maxX = cities.map { it.point?.x }.maxBy { it ?: 0.0 } ?: 0.0
-    private val maxY = cities.map { it.point?.y }.maxBy { it ?: 0.0 } ?: 0.0
+    private val maxX: Double
+    private val maxY: Double
 
     private val multiplierX: Double
     private val multiplierY: Double
 
     private val pointDiameter: Int
 
+    private var solution: Solution? = null
+
+    private val marginX = 50
+    private val marginY = 50
+
+    private val colors = arrayOf(
+        Color.RED, Color.BLUE, Color.GREEN, Color.PINK, Color.ORANGE,
+        Color.MAGENTA, Color.GRAY
+    )
+
     init {
+        // normalize point (remove negative coordinates)
+        val minX = cities.mapNotNull { it.point?.x }.filter { it < 0.0 }.minBy { it }?.absoluteValue ?: 0.0
+        val minY = cities.mapNotNull { it.point?.y }.filter { it < 0.0 }.minBy { it }?.absoluteValue ?: 0.0
+
+        cities.forEach {
+            it.point?.let { point ->
+                point.x += minX
+                point.y += minY
+            }
+        }
+
+        // add x-y margins
+
+        cities.forEach {
+            it.point?.let { point ->
+                point.x += marginX
+                point.y += marginY
+            }
+        }
+
+        maxX = cities.map { it.point?.x }.maxBy { it ?: 0.0 } ?: 0.0
+        maxY = cities.map { it.point?.y }.maxBy { it ?: 0.0 } ?: 0.0
+
         val gd = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
         width = gd.displayMode.width / 2
         height = gd.displayMode.height / 2
 
-        multiplierX = width / maxX / 1.2
-        multiplierY = height / maxY / 1.2
+        multiplierX = width / maxX / 1.3
+        multiplierY = height / maxY / 1.3
 
-        pointDiameter = (width / 20)
+        pointDiameter = (width / 40)
 
         frame.setSize(width, height)
 
@@ -36,7 +72,9 @@ class Visualizer(private val cities: Array<City>) {
                 super.paintComponent(g)
                 val g2d = g as Graphics2D
                 drawPoints(g2d)
-                drawConnections(g2d)
+                solution?.let {
+                    drawConnections(g2d, it)
+                }
             }
         }, BorderLayout.CENTER)
     }
@@ -51,7 +89,7 @@ class Visualizer(private val cities: Array<City>) {
                 CityType.CUSTOMER -> Color.ORANGE
                 CityType.END_DEPOT -> Color.BLUE
             }
-            graphics.fillOval(xCoordinate, yCoordinate, pointDiameter, pointDiameter)
+            graphics.fillRect(xCoordinate, yCoordinate, pointDiameter, pointDiameter)
             graphics.color = Color.BLACK
             val fm = graphics.fontMetrics
             val text = (city.index + 1).toString()
@@ -64,16 +102,26 @@ class Visualizer(private val cities: Array<City>) {
         }
     }
 
-    private fun drawConnections(graphics: Graphics2D) {
-        graphics.color = Color.RED
+    private fun drawConnections(graphics: Graphics2D, solution: Solution) {
+        val colorList = colors.toList().shuffled().take(solution.ants.size)
 
-        val x1 = cities[0].point?.x!!.toInt() * multiplierX.toInt() + pointDiameter / 2
-        val x2 = cities[2].point?.x!!.toInt() * multiplierX.toInt() + pointDiameter / 2
+        solution.ants.forEachIndexed { index, ant ->
+            graphics.color = colorList[index]
 
-        val y1 = cities[0].point?.y!!.toInt() * multiplierY.toInt() + pointDiameter / 2
-        val y2 = cities[2].point?.y!!.toInt() * multiplierY.toInt() + pointDiameter / 2
+            val routeList = ant.getRoute()
+            for (i in 0 until routeList.size - 1) {
+                val city1 = cities[routeList[i]]
+                val city2 = cities[routeList[i + 1]]
 
-        drawArrowLine(graphics, x1, y1, x2, y2, 15, 15)
+                val x1 = city1.point?.x!! * multiplierX + pointDiameter / 2
+                val x2 = city2.point?.x!! * multiplierX + pointDiameter / 2
+
+                val y1 = city1.point?.y!! * multiplierY + pointDiameter / 2
+                val y2 = city2.point?.y!! * multiplierY + pointDiameter / 2
+
+                drawArrowLine(graphics, x1.toInt(), y1.toInt(), x2.toInt(), y2.toInt(), 5, 5)
+            }
+        }
     }
 
     /**
@@ -89,7 +137,7 @@ class Visualizer(private val cities: Array<City>) {
     private fun drawArrowLine(g: Graphics, x1: Int, y1: Int, x2: Int, y2: Int, d: Int, h: Int) {
         val dx = x2 - x1
         val dy = y2 - y1
-        val D = Math.sqrt((dx * dx + dy * dy).toDouble())
+        val D = sqrt((dx * dx + dy * dy).toDouble())
         var xm = D - d
         var xn = xm
         var ym = h.toDouble()
@@ -111,6 +159,12 @@ class Visualizer(private val cities: Array<City>) {
 
         g.drawLine(x1, y1, x2, y2)
         g.fillPolygon(xPoints, yPoints, 3)
+    }
+
+    fun showSolution(solution: Solution) {
+        this.solution = solution
+        frame.revalidate()
+        frame.repaint()
     }
 
     fun show() {

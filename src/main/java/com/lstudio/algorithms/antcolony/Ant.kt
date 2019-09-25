@@ -48,6 +48,14 @@ class Ant(private var trailSize: Int, var capacity: Int) {
         println("${trail[currentIndex - 1]}")
     }
 
+    fun getRoute(): ArrayList<Int> {
+        val route = arrayListOf<Int>()
+        for (i in 0 until currentIndex) {
+            route.add(trail[i])
+        }
+        return route
+    }
+
     fun clear() {
         for (i in 0 until trailSize)
             visited[i] = false
