@@ -1,0 +1,217 @@
+Local Search 
+Solution time: 15582699 nanoseconds
+Best Value:  8414.858158084686
+
+Solution time: 15418300 nanoseconds
+Best Value:  8414.858158084686
+
+Solution time: 15722000 nanoseconds
+Best Value:  8414.858158084686
+
+Solution time: 15554300 nanoseconds
+Best Value:  8414.858158084686
+
+Solution time: 15318900 nanoseconds
+Best Value:  8414.858158084686
+
+Solution time: 15168100 nanoseconds
+Best Value:  8414.858158084686
+
+Solution time: 15312800 nanoseconds
+Best Value:  8414.858158084686
+
+Solution time: 15307000 nanoseconds
+Best Value:  8414.858158084686
+
+Solution time: 15035401 nanoseconds
+Best Value:  8414.858158084686
+
+Solution time: 15359100 nanoseconds
+Best Value:  8414.858158084686
+
+MMAS 
+Solution time: 9244947301 nanoseconds
+Best Value:  7881.634046679199
+
+Solution time: 9328897100 nanoseconds
+Best Value:  7714.300125428794
+
+Solution time: 9393586000 nanoseconds
+Best Value:  7596.836701391567
+
+Solution time: 9121940600 nanoseconds
+Best Value:  8229.248029107805
+
+Solution time: 9265775000 nanoseconds
+Best Value:  8086.571617333282
+
+Solution time: 9128468600 nanoseconds
+Best Value:  7869.10051604475
+
+Solution time: 9228841299 nanoseconds
+Best Value:  7949.975781226989
+
+Solution time: 9270052499 nanoseconds
+Best Value:  7916.034464503525
+
+Solution time: 9313972299 nanoseconds
+Best Value:  8063.623687923041
+
+Solution time: 9331443001 nanoseconds
+Best Value:  7996.179788633452
+
+FARSIGHTED MMAS 
+Solution time: 852962970000 nanoseconds
+Best Value:  8777.611378252222
+
+Solution time: 852733693500 nanoseconds
+Best Value:  8466.145543224127
+
+Solution time: 851618400499 nanoseconds
+Best Value:  8221.205107948714
+
+Solution time: 858262785600 nanoseconds
+Best Value:  7925.570274516171
+
+Solution time: 844357754200 nanoseconds
+Best Value:  8522.372523817688
+
+Solution time: 844665705001 nanoseconds
+Best Value:  8616.372128309504
+
+Solution time: 861079844700 nanoseconds
+Best Value:  8020.978134881388
+
+Solution time: 843384780200 nanoseconds
+Best Value:  8738.896907887689
+
+Solution time: 851606048600 nanoseconds
+Best Value:  8410.959542299403
+
+Solution time: 843712039700 nanoseconds
+Best Value:  8547.679346145716
+
+ISLAND FARSIGHTED MMAS COMPLETE 
+Solution time: 972107529300 nanoseconds
+Best Value:  8136.667264503838
+
+Solution time: 982286428100 nanoseconds
+Best Value:  8058.469646857573
+
+Solution time: 981237668100 nanoseconds
+Best Value:  8148.611648176455
+
+Solution time: 987312628200 nanoseconds
+Best Value:  8024.556477038905
+
+Solution time: 982421248399 nanoseconds
+Best Value:  7953.328634357053
+
+Solution time: 986958369800 nanoseconds
+Best Value:  8069.358597171539
+
+Solution time: 984224326900 nanoseconds
+Best Value:  7641.389152940896
+
+Solution time: 984258418500 nanoseconds
+Best Value:  7849.232333454584
+
+Solution time: 983266371100 nanoseconds
+Best Value:  8118.31169981148
+
+Solution time: 985676143901 nanoseconds
+Best Value:  8101.64443264178
+
+ISLAND FARSIGHTED MMAS HYPERCUBE
+Solution time: 1015939500799 nanoseconds
+Best Value:  8073.540118866341
+
+Solution time: 1049260232499 nanoseconds
+Best Value:  7844.546218850388
+
+Solution time: 1021706988800 nanoseconds
+Best Value:  8085.990996368011
+
+Solution time: 976993242101 nanoseconds
+Best Value:  8182.904977948955
+
+Solution time: 974148959701 nanoseconds
+Best Value:  7899.534567815891
+
+Solution time: 982859605500 nanoseconds
+Best Value:  8124.021120037309
+
+Solution time: 971734921099 nanoseconds
+Best Value:  8192.16193391726
+
+Solution time: 981030935199 nanoseconds
+Best Value:  7734.522592250687
+
+Solution time: 967143110201 nanoseconds
+Best Value:  8320.078018315762
+
+Solution time: 980710570500 nanoseconds
+Best Value:  8121.1465100934165
+
+ISLAND FARSIGHTED MMAS RING
+Solution time: 975654888199 nanoseconds
+Best Value:  8229.87775472784
+
+Solution time: 987507479201 nanoseconds
+Best Value:  8123.385880393172
+
+Solution time: 976619450300 nanoseconds
+Best Value:  7898.151423921948
+
+Solution time: 991608181900 nanoseconds
+Best Value:  7946.761256816657
+
+Solution time: 980207242200 nanoseconds
+Best Value:  7974.195882498836
+
+Solution time: 983174468999 nanoseconds
+Best Value:  8051.211606603749
+
+Solution time: 978486827599 nanoseconds
+Best Value:  8189.979462859199
+
+Solution time: 976621570499 nanoseconds
+Best Value:  8378.892912032868
+
+Solution time: 968193084900 nanoseconds
+Best Value:  8234.497607285406
+
+Solution time: 985170858500 nanoseconds
+Best Value:  8297.009626945208
+
+ISLAND FARSIGHTED MMAS TORUS
+Solution time: 978475689800 nanoseconds
+Best Value:  7925.668499302989
+
+Solution time: 986015754201 nanoseconds
+Best Value:  8358.50306316731
+
+Solution time: 979600296499 nanoseconds
+Best Value:  7961.645273877134
+
+Solution time: 986688360999 nanoseconds
+Best Value:  8117.900177725345
+
+Solution time: 975512082399 nanoseconds
+Best Value:  7872.593090792912
+
+Solution time: 988712949600 nanoseconds
+Best Value:  8070.709041067941
+
+Solution time: 976148537499 nanoseconds
+Best Value:  8045.314841542966
+
+Solution time: 987312819799 nanoseconds
+Best Value:  7958.860439911159
+
+Solution time: 974328225400 nanoseconds
+Best Value:  8110.643395351441
+
+Solution time: 985608041600 nanoseconds
+Best Value:  8152.105556180277
+

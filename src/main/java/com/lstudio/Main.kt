@@ -2,6 +2,9 @@ package com.lstudio
 
 import com.lstudio.algorithms.antcolony.TaskSettings
 import com.lstudio.algorithms.antcolony.island.IslandOptimization
+import com.lstudio.algorithms.antcolony.island.topology.HypercubeTopology
+import com.lstudio.algorithms.antcolony.island.topology.RingTopology
+import com.lstudio.algorithms.antcolony.island.topology.TorusTopology
 import com.lstudio.algorithms.antcolony.optimization.DefaultMMASOptimization
 import com.lstudio.algorithms.antcolony.optimization.FarsightedMMASOptimization
 import com.lstudio.algorithms.bruteforce.BruteforceSolver
@@ -86,7 +89,7 @@ object Main {
                     val answer = cin.nextInt()
                     if (answer == -1)
                         break
-                    taskGenerator.generate(answer, 6, 8)
+                    taskGenerator.generate(answer, 5, 5)
                 }
             }
             8 -> {
@@ -110,12 +113,12 @@ object Main {
         }
         
         val tasks = arrayListOf(
-            // "tasks\\test_task\\generated\\test_task_10_2_2.txt",
-            //"tasks\\test_task\\generated\\test_task_16_3_4.txt",
-            // "tasks\\test_task\\generated\\test_task_30_4_7.txt",
+            "tasks\\test_task\\generated\\test_task_16_3_4.txt",
+            "tasks\\test_task\\generated\\test_task_30_4_7.txt",
             "tasks\\test_task\\generated\\test_task_36_5_8.txt",
             "tasks\\test_task\\generated\\test_task_43_5_8.txt",
             "tasks\\test_task\\generated\\test_task_57_10_12.txt",
+            "tasks\\test_task\\generated\\test_task_65_3_5.txt",
             "tasks\\test_task\\generated\\test_task_70_6_8.txt"
         )
 
@@ -182,14 +185,67 @@ object Main {
                 fileWriter.appendText("Best Value:  ${antColony.getCurrentLength()}\n\n")
             }
 
-            fileWriter.appendText("ISLAND FARSIGHTED MMAS \n")
+            fileWriter.appendText("ISLAND FARSIGHTED MMAS COMPLETE \n")
 
             for (i in 0 until 10) {
                 val startTimeMillis = System.nanoTime()
                 val islandOptimization = IslandOptimization(
                     weight,
                     startDepots,
-                    endDepots
+                    endDepots,
+                    null
+                )
+                islandOptimization.start()
+                val time = "Solution time: ${(System.nanoTime() - startTimeMillis)} nanoseconds\n"
+                println(time)
+                fileWriter.appendText(time)
+                fileWriter.appendText("Best Value:  ${islandOptimization.bestValue}\n\n")
+            }
+
+
+            fileWriter.appendText("ISLAND FARSIGHTED MMAS HYPERCUBE\n")
+
+            for (i in 0 until 10) {
+                val startTimeMillis = System.nanoTime()
+                val islandOptimization = IslandOptimization(
+                    weight,
+                    startDepots,
+                    endDepots,
+                    HypercubeTopology(IslandOptimization.islandsCount)
+                )
+                islandOptimization.start()
+                val time = "Solution time: ${(System.nanoTime() - startTimeMillis)} nanoseconds\n"
+                println(time)
+                fileWriter.appendText(time)
+                fileWriter.appendText("Best Value:  ${islandOptimization.bestValue}\n\n")
+            }
+
+            fileWriter.appendText("ISLAND FARSIGHTED MMAS RING\n")
+
+            for (i in 0 until 10) {
+                val startTimeMillis = System.nanoTime()
+                val islandOptimization = IslandOptimization(
+                    weight,
+                    startDepots,
+                    endDepots,
+                    RingTopology(IslandOptimization.islandsCount)
+                )
+                islandOptimization.start()
+                val time = "Solution time: ${(System.nanoTime() - startTimeMillis)} nanoseconds\n"
+                println(time)
+                fileWriter.appendText(time)
+                fileWriter.appendText("Best Value:  ${islandOptimization.bestValue}\n\n")
+            }
+
+            fileWriter.appendText("ISLAND FARSIGHTED MMAS TORUS\n")
+
+            for (i in 0 until 10) {
+                val startTimeMillis = System.nanoTime()
+                val islandOptimization = IslandOptimization(
+                    weight,
+                    startDepots,
+                    endDepots,
+                    TorusTopology(IslandOptimization.islandsCount)
                 )
                 islandOptimization.start()
                 val time = "Solution time: ${(System.nanoTime() - startTimeMillis)} nanoseconds\n"

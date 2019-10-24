@@ -77,7 +77,7 @@ class IslandOptimization(
 
     companion object {
         private const val threadCount = 8
-        private const val islandsCount = 8
+        const val islandsCount = 8
         private const val cycleIterations = 50
     }
 }
