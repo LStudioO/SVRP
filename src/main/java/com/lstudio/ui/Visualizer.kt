@@ -4,13 +4,11 @@ import com.lstudio.algorithms.antcolony.City
 import com.lstudio.algorithms.antcolony.CityType
 import com.lstudio.algorithms.antcolony.Solution
 import java.awt.*
-import javax.swing.JFrame
 import javax.swing.JPanel
 import kotlin.math.absoluteValue
 import kotlin.math.sqrt
 
-class Visualizer(private val cities: Array<City>) {
-    private val frame: JFrame = JFrame("Points")
+class Visualizer(private val frame: JPanel, private val cities: Array<City>) {
     private var width: Int
     private var height: Int
 
@@ -56,27 +54,13 @@ class Visualizer(private val cities: Array<City>) {
         maxX = cities.map { it.point?.x }.maxBy { it ?: 0.0 } ?: 0.0
         maxY = cities.map { it.point?.y }.maxBy { it ?: 0.0 } ?: 0.0
 
-        val gd = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
-        width = gd.displayMode.width / 2
-        height = gd.displayMode.height / 2
+        width = frame.width
+        height = frame.height
 
         multiplierX = width / maxX / 1.3
         multiplierY = height / maxY / 1.3
 
         pointDiameter = (width / 40)
-
-        frame.setSize(width, height)
-
-        frame.add(object : JPanel() {
-            override fun paintComponent(g: Graphics?) {
-                super.paintComponent(g)
-                val g2d = g as Graphics2D
-                drawPoints(g2d)
-                solution?.let {
-                    drawConnections(g2d, it)
-                }
-            }
-        }, BorderLayout.CENTER)
     }
 
     private fun drawPoints(graphics: Graphics2D) {
@@ -163,11 +147,19 @@ class Visualizer(private val cities: Array<City>) {
 
     fun showSolution(solution: Solution) {
         this.solution = solution
-        frame.revalidate()
+       // frame.revalidate()
         frame.repaint()
     }
 
     fun show() {
         frame.isVisible = true
+    }
+
+    fun draw(g: Graphics) {
+        val g2d = g as Graphics2D
+        drawPoints(g2d)
+        solution?.let {
+            drawConnections(g2d, it)
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.lstudio.algorithms.antcolony.island
 import com.lstudio.algorithms.antcolony.island.topology.HypercubeTopology
 import com.lstudio.algorithms.antcolony.island.topology.Topology
 import com.lstudio.algorithms.antcolony.optimization.FarsightedMMASOptimization
+import com.lstudio.ui.Visualizer
 import kotlinx.coroutines.*
 
 class IslandOptimization(
@@ -14,9 +15,15 @@ class IslandOptimization(
 
     var bestValue: Double = 0.0
     private var islandDaemon: IslandDaemon? = null
+    private val acoList = arrayListOf<FarsightedMMASOptimization>()
 
-    @ObsoleteCoroutinesApi
-    fun start() = runBlocking {
+    fun setVisualizer(v: Visualizer) {
+        acoList.first().visualizer = v
+    }
+
+    fun getCities() = acoList.first().cities
+
+    fun setupAco() {
 
         // init island daemon if needed
         topology?.let {
@@ -24,13 +31,16 @@ class IslandOptimization(
         }
 
         // create instances of ACO
-        val acoList = arrayListOf<FarsightedMMASOptimization>()
 
         repeat(islandsCount) {
             acoList.add(FarsightedMMASOptimization(distanceMatrix, startDepots, endDepots))
         }
 
         acoList.forEach { it.setup() }
+    }
+
+    @ObsoleteCoroutinesApi
+    fun start() = GlobalScope.launch {
 
         val context = newFixedThreadPoolContext(threadCount, "ACO")
 
@@ -77,7 +87,7 @@ class IslandOptimization(
 
     companion object {
         private const val threadCount = 8
-        const val islandsCount = 8
-        private const val cycleIterations = 50
+        var islandsCount = 8
+        var cycleIterations = 50
     }
 }

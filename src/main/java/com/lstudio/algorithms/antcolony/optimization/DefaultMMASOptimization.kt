@@ -41,7 +41,7 @@ open class DefaultMMASOptimization(
     private var stagnationValue = 0
     private var stagnationCounter = 0
 
-    private val visualizer: Visualizer
+    var visualizer: Visualizer? = null
 
     init {
         numberOfCities = graph.size
@@ -53,12 +53,6 @@ open class DefaultMMASOptimization(
         trails = Array(numberOfCities) { DoubleArray(numberOfCities) }
 
         prepareCitiesForVisualization()
-
-        visualizer = Visualizer(cities)
-
-        if (TaskSettings.visualize) {
-            visualizer.show()
-        }
     }
 
     private fun prepareCitiesForVisualization() {
@@ -68,7 +62,7 @@ open class DefaultMMASOptimization(
     }
 
     private fun visualizeSolution(solution: Solution) {
-        visualizer.showSolution(solution)
+        visualizer?.showSolution(solution)
     }
 
     private fun parseCities(points: Array<Point>) {
@@ -169,6 +163,7 @@ open class DefaultMMASOptimization(
         while (iterationsWithoutImprovement < iterationsCount) {
             try {
                 findBestIterationSolution(routes)
+                printIterationSolution()
                 updatePheromones()
                 daemonActions()
                 iterationsWithoutImprovement++
