@@ -60,7 +60,7 @@ class Visualizer(private val frame: JPanel, private val cities: Array<City>) {
         multiplierX = width / maxX / 1.3
         multiplierY = height / maxY / 1.3
 
-        pointDiameter = (width / 40)
+        pointDiameter = (width / 30)
     }
 
     private fun drawPoints(graphics: Graphics2D) {
@@ -71,7 +71,7 @@ class Visualizer(private val frame: JPanel, private val cities: Array<City>) {
             graphics.color = when (city.type) {
                 CityType.START_DEPOT -> Color.GREEN
                 CityType.CUSTOMER -> Color.ORANGE
-                CityType.END_DEPOT -> Color.BLUE
+                CityType.END_DEPOT -> Color.RED
             }
             graphics.fillRect(xCoordinate, yCoordinate, pointDiameter, pointDiameter)
             graphics.color = Color.BLACK
