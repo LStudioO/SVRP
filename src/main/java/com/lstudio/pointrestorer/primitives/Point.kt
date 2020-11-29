@@ -1,6 +1,7 @@
 package com.lstudio.pointrestorer.primitives
 
 import com.lstudio.pointrestorer.ComparatorContext
+import kotlin.math.sqrt
 
 class Point
 @JvmOverloads constructor(var x: Double, var y: Double, var id: Int = 0) {
@@ -39,7 +40,7 @@ class Point
             val b = p2.y - p1.y
             val sqrD = a * a + b * b
 
-            return Math.sqrt(sqrD)
+            return sqrt(sqrD)
         }
     }
 }

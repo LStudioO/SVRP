@@ -17,8 +17,4 @@ abstract class AbstractTopology(val size: Int) : Topology {
             connectionGraph[i] = calculateNeighborhood(i)
         }
     }
-
-    fun printConnections() {
-        connectionGraph.forEach { (key, value) -> println("$key = $value") }
-    }
 }

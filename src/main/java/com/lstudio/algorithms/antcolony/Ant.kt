@@ -1,6 +1,6 @@
 package com.lstudio.algorithms.antcolony
 
-class Ant(private var trailSize: Int, var capacity: Int) {
+class Ant(private val trailSize: Int, private val capacity: Int) {
     var trail: IntArray = IntArray(trailSize)
     var visited: BooleanArray = BooleanArray(trailSize)
     var currentIndex = 0
@@ -46,6 +46,15 @@ class Ant(private var trailSize: Int, var capacity: Int) {
             print("${trail[i]} -> ")
         }
         println("${trail[currentIndex - 1]}")
+    }
+
+    fun trailString(): String {
+        val stringBuilder = StringBuilder()
+        for (i in 0 until currentIndex - 1) {
+            stringBuilder.append("${trail[i]} -> ")
+        }
+        stringBuilder.append("${trail[currentIndex - 1]}\n")
+        return stringBuilder.toString()
     }
 
     fun getRoute(): ArrayList<Int> {

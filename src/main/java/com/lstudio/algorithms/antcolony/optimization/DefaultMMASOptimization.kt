@@ -9,7 +9,6 @@ import com.lstudio.algorithms.antcolony.route.BasicRoute
 import com.lstudio.algorithms.ls.GreedySolver
 import com.lstudio.pointrestorer.DistMatrix
 import com.lstudio.pointrestorer.primitives.Point
-import com.lstudio.ui.Visualizer
 import kotlin.math.max
 import kotlin.math.min
 
@@ -41,8 +40,6 @@ open class DefaultMMASOptimization(
     private var stagnationValue = 0
     private var stagnationCounter = 0
 
-    var visualizer: Visualizer? = null
-
     init {
         numberOfCities = graph.size
         numberOfAnts = startDepots.size
@@ -59,10 +56,6 @@ open class DefaultMMASOptimization(
         val dMatrix = DistMatrix(graph)
         val points = dMatrix.restorePoints()
         parseCities(points!!)
-    }
-
-    private fun visualizeSolution(solution: Solution) {
-        visualizer?.showSolution(solution)
     }
 
     private fun parseCities(points: Array<Point>) {
@@ -125,9 +118,6 @@ open class DefaultMMASOptimization(
     private fun run() {
         setup()
         runIterations(TaskSettings.iterationsWithoutImprovement)
-        bestSolution?.let {
-            visualizeSolution(it)
-        }
         printResult()
     }
 
@@ -178,9 +168,8 @@ open class DefaultMMASOptimization(
     }
 
     private fun findBestIterationSolution(routes: ArrayList<AbstractRoute>) {
-        val best = routes.map { it.constructSolution() }.minBy { routeLength(it) }!!
+        val best = routes.map { it.constructSolution() }.minBy { routeLength(it) }.orEmpty()
         iterationBestSolution = Solution(best.map { it.clone() })
-        visualizeSolution(iterationBestSolution)
     }
 
     // update pheromones
@@ -311,7 +300,7 @@ open class DefaultMMASOptimization(
     /**
      * Print current solution
      */
-    fun printResult() {
+    private fun printResult() {
         println("Best length: ${getCurrentLength()}")
     }
 

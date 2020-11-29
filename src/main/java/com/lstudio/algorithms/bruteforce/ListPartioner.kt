@@ -53,9 +53,9 @@ internal object ListPartitioner {
             var q = 0
             for (j in array.indices) {
                 if (contains[j]) {
-                    firstPart.set(p++, array[j])
+                    firstPart[p++] = array[j]
                 } else {
-                    secondPart.set(q++, array[j])
+                    secondPart[q++] = array[j]
                 }
             }
             val partitions: Array<Array<IntArray>>
@@ -64,13 +64,13 @@ internal object ListPartitioner {
             } else {
                 partitions = getAllPartitions(secondPart)
                 for (j in partitions.indices) {
-                    val partition = Array(partitions[j].size + 1, { IntArray(0) })
+                    val partition = Array(partitions[j].size + 1) { IntArray(0) }
                     partition[0] = firstPart
                     System.arraycopy(partitions[j], 0, partition, 1, partitions[j].size)
                     partitions[j] = partition
                 }
             }
-            val newRes = Array(res.size + partitions.size, { arrayOf(IntArray(0)) })
+            val newRes = Array(res.size + partitions.size) { arrayOf(IntArray(0)) }
             System.arraycopy(res, 0, newRes, 0, res.size)
             System.arraycopy(partitions, 0, newRes, res.size, partitions.size)
             res = newRes
@@ -79,7 +79,7 @@ internal object ListPartitioner {
         return res
     }
 
-    fun <T> getCombinations(k: Int, list: MutableList<T>): MutableList<MutableList<T>> {
+    private fun <T> getCombinations(k: Int, list: MutableList<T>): MutableList<MutableList<T>> {
         val combinations = ArrayList<MutableList<T>>()
         if (k == 0) {
             combinations.add(ArrayList())
@@ -96,7 +96,7 @@ internal object ListPartitioner {
         return combinations
     }
 
-    fun <T> getSublist(list: MutableList<T>, i: Int): MutableList<T> {
+    private fun <T> getSublist(list: MutableList<T>, i: Int): MutableList<T> {
         val sublist = ArrayList<T>()
         for (j in i until list.size) {
             sublist.add(list[j])

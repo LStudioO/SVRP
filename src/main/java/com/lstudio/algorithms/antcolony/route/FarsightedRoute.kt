@@ -107,6 +107,6 @@ class FarsightedRoute(
         probabilities.filter { key -> key.key.size == 2 }.forEach { (_, u) -> sumOne += u }
         probabilities.filter { key -> key.key.size == 1 }.forEach { (_, u) -> sumTwo += u }
         if (sumOne + sumTwo > 2)
-            throw java.lang.RuntimeException("Wtf")
+            throw java.lang.RuntimeException("Sum can not be bigger than 2")
     }
 }

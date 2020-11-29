@@ -22,9 +22,9 @@ class RVM(private val provider: () -> DefaultMMASOptimization) {
         // params
         // alpha, beta, rho, stagnationConst, randomFactor, routeIterations
         val paramCount = 6
-        val paramsMin: ArrayList<Double> = ArrayList(6)
-        val paramsMax: ArrayList<Double> = ArrayList(6)
-        val steps: ArrayList<Double> = ArrayList(6)
+        val paramsMin: ArrayList<Double> = ArrayList(paramCount)
+        val paramsMax: ArrayList<Double> = ArrayList(paramCount)
+        val steps: ArrayList<Double> = ArrayList(paramCount)
 
         paramsMin.addAll(arrayOf(0.1, 0.1, 0.05, 100.0, 0.01, 3.0))
         paramsMax.addAll(arrayOf(2.0, 2.0, 0.3, 1000.0, 0.1, 10.0))
@@ -36,7 +36,7 @@ class RVM(private val provider: () -> DefaultMMASOptimization) {
         var currentSolution: ArrayList<Double>
 
         var numberCompletedIterations = 0
-        var differenceRoutesLength = 0.0
+        var differenceRoutesLength: Double
 
         while (ringGenerator.hasAvailableCombination()) {
             currentSolution = ringGenerator.getNewSet()

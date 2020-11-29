@@ -12,6 +12,7 @@ import com.lstudio.algorithms.ls.TabuSearchSolver
 import com.lstudio.algorithms.rvm.RVM
 import com.lstudio.data.TaskGenerator
 import com.lstudio.data.TaskReader
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.*
 
@@ -32,7 +33,7 @@ object Main {
         println("8 - RUN EXPERIMENTS")
 
         val taskReader = TaskReader()
-        taskReader.readTask("tasks\\test_task\\generated\\test_task_16_3_4.txt")
+        taskReader.readTask("tasks\\test_task\\generated\\test_task_10_2_2.txt")
         println(
             "Task name: ${taskReader.name} \n" +
                     "City count: ${taskReader.cityCount}\n" +
@@ -74,12 +75,16 @@ object Main {
                 bruteforceSolver.solve()
             }
             6 -> {
-                val islandOptimization = IslandOptimization(
-                    weight,
-                    startDepots,
-                    endDepots
-                )
-                islandOptimization.start()
+                runBlocking {
+                    val islandOptimization = IslandOptimization(
+                        weight,
+                        startDepots,
+                        endDepots
+                    )
+                    islandOptimization.runExperiment {
+                        println(it)
+                    }
+                }
             }
             7 -> {
                 val taskGenerator = TaskGenerator()
@@ -99,7 +104,6 @@ object Main {
         }
         scanner.close()
     }
-
 
     private fun runExperiments() {
         // best params
@@ -195,7 +199,9 @@ object Main {
                     endDepots,
                     null
                 )
-                islandOptimization.start()
+                runBlocking {
+                    islandOptimization.runExperiment()
+                }
                 val time = "Solution time: ${(System.nanoTime() - startTimeMillis)} nanoseconds\n"
                 println(time)
                 fileWriter.appendText(time)
@@ -213,7 +219,9 @@ object Main {
                     endDepots,
                     HypercubeTopology(IslandOptimization.islandsCount)
                 )
-                islandOptimization.start()
+                runBlocking {
+                    islandOptimization.runExperiment()
+                }
                 val time = "Solution time: ${(System.nanoTime() - startTimeMillis)} nanoseconds\n"
                 println(time)
                 fileWriter.appendText(time)
@@ -230,7 +238,9 @@ object Main {
                     endDepots,
                     RingTopology(IslandOptimization.islandsCount)
                 )
-                islandOptimization.start()
+                runBlocking {
+                    islandOptimization.runExperiment()
+                }
                 val time = "Solution time: ${(System.nanoTime() - startTimeMillis)} nanoseconds\n"
                 println(time)
                 fileWriter.appendText(time)
@@ -247,7 +257,9 @@ object Main {
                     endDepots,
                     TorusTopology(IslandOptimization.islandsCount)
                 )
-                islandOptimization.start()
+                runBlocking {
+                    islandOptimization.runExperiment()
+                }
                 val time = "Solution time: ${(System.nanoTime() - startTimeMillis)} nanoseconds\n"
                 println(time)
                 fileWriter.appendText(time)

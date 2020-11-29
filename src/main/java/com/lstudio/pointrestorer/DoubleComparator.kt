@@ -1,7 +1,6 @@
 package com.lstudio.pointrestorer
 
-class DoubleComparator
-    (
+class DoubleComparator(
     var epsilon: Double
 ) {
 

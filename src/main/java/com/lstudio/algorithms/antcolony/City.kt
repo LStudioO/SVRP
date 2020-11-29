@@ -6,7 +6,7 @@ enum class CityType {
     START_DEPOT, CUSTOMER, END_DEPOT
 }
 
-class City(val index: Int, private val isStartDepot: Boolean, val capacity: Int) {
+class City(val index: Int, private val isStartDepot: Boolean, private val capacity: Int) {
     val type: CityType
         get() {
             if (capacity > 0)

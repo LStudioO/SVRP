@@ -12,15 +12,15 @@ internal class Vehicle(private val capacity: Int) {
         this.routes.clear()
     }
 
-    fun addNode(Customer: Node)//Add Customer to Vehicle routes
-    {
+    //Add Customer to Vehicle routes
+    fun addNode(Customer: Node) {
         routes.add(Customer)
         this.load += Customer.demand
         this.currentLocation = Customer.nodeId
     }
 
-    fun checkIfFits(dem: Double) //Check if we have Capacity Violation
-            : Boolean {
+    //Check if we have Capacity Violation
+    fun checkIfFits(dem: Double): Boolean {
         return load + dem <= capacity
     }
 }

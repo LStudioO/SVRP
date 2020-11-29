@@ -1,19 +1,13 @@
 package com.lstudio.pointrestorer.primitives
 
 import com.lstudio.pointrestorer.ComparatorContext
+import kotlin.math.abs
+import kotlin.math.sqrt
 
-class Circle(var center: Point?, var radius: Double) {
+class Circle(private val center: Point?, private val radius: Double) {
 
     val isPoint: Boolean
         get() = ComparatorContext.DOUBLE_COMPARATOR.equalsZero(radius)
-
-    fun getIntersectionPoints(circle: Circle, id: Int): Array<Point>? {
-        return getIntersectionPoints(this, circle, id)
-    }
-
-    fun getIntersectionPoints(circle: Circle): Array<Point>? {
-        return getIntersectionPoints(this, circle)
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -49,7 +43,7 @@ class Circle(var center: Point?, var radius: Double) {
             return points
         }
 
-        fun getIntersectionPoints(c1: Circle, c2: Circle): Array<Point>? {
+        private fun getIntersectionPoints(c1: Circle, c2: Circle): Array<Point>? {
             var points: Array<Point>? = null
 
             if (c1.isPoint) {
@@ -70,7 +64,7 @@ class Circle(var center: Point?, var radius: Double) {
                 if (ComparatorContext.DOUBLE_COMPARATOR.compare(
                         d,
                         r1 + r2
-                    ) > 0 || ComparatorContext.DOUBLE_COMPARATOR.compare(d, Math.abs(r1 - r2)) < 0
+                    ) > 0 || ComparatorContext.DOUBLE_COMPARATOR.compare(d, abs(r1 - r2)) < 0
                 ) {
                     points = null
                 } else {
@@ -83,7 +77,7 @@ class Circle(var center: Point?, var radius: Double) {
                     val y0 = y1 + aDivD * y2SubY1
                     val sqrR1SubSqrA = r1 * r1 - a * a
                     val h: Double =
-                        if (ComparatorContext.DOUBLE_COMPARATOR.equalsZero(sqrR1SubSqrA)) 0.0 else Math.sqrt(
+                        if (ComparatorContext.DOUBLE_COMPARATOR.equalsZero(sqrR1SubSqrA)) 0.0 else sqrt(
                             sqrR1SubSqrA
                         )
                     val hDivD = h / d
@@ -120,15 +114,11 @@ class Circle(var center: Point?, var radius: Double) {
         }
 
         private fun getIntersectionPoints(p1: Point, p2: Point?): Array<Point>? {
-            val points: Array<Point>?
-
-            if (p1 == p2) {
-                points = arrayOf(Point(p1.x, p1.y))
+            return if (p1 == p2) {
+                arrayOf(Point(p1.x, p1.y))
             } else {
-                points = null
+                null
             }
-
-            return points
         }
     }
 }

@@ -13,5 +13,4 @@ object TaskSettings {
     const val antCapacity = 200
     const val iterationsWithoutImprovement = 1000
     const val logging = false
-    const val visualize = true
 }

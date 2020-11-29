@@ -1,6 +1,6 @@
 package com.lstudio.algorithms.antcolony
 
-class Solution(val ants: List<Ant>) {
+class Solution(private val ants: List<Ant>) {
 
     var fitness = 0.0
 
@@ -19,10 +19,19 @@ class Solution(val ants: List<Ant>) {
 
     fun print(graph: Array<DoubleArray>) {
         println("Current solution:")
-        for (i in 0 until ants.size) {
+        for (i in ants.indices) {
             println("Ant #${i + 1}:")
             ants[i].printTrail()
         }
         println("Length: ${trailLength(graph)}")
+    }
+
+    override fun toString(): String {
+        val stringBuilder = StringBuilder()
+        for (i in ants.indices) {
+            stringBuilder.append("Route #${i + 1}: ")
+            stringBuilder.append(ants[i].trailString())
+        }
+        return stringBuilder.toString()
     }
 }

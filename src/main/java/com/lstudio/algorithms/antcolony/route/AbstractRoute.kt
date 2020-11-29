@@ -9,15 +9,19 @@ import java.util.stream.IntStream
 import kotlin.collections.ArrayList
 
 abstract class AbstractRoute(
-    val size: Int, distanceMatrix: Array<DoubleArray>,
-    private val numberOfAnts: Int, private val numberOfCities: Int, val trails: Array<DoubleArray>,
-    private val antCapacity: Int, val cities: Array<City>, private val numberOfStartDepots: Int,
-    val startDepots: IntArray
+    private val size: Int, distanceMatrix: Array<DoubleArray>,
+    private val numberOfAnts: Int,
+    private val numberOfCities: Int,
+    protected val trails: Array<DoubleArray>,
+    private val antCapacity: Int,
+    protected val cities: Array<City>,
+    private val numberOfStartDepots: Int,
+    private val startDepots: IntArray
 ) {
 
-    val random = Random()
-    var candidateList = ArrayList<Int>()
-    val graph: Array<DoubleArray> = distanceMatrix
+    protected val random = Random()
+    protected val candidateList = ArrayList<Int>()
+    protected val graph: Array<DoubleArray> = distanceMatrix
     private val ants = ArrayList<Ant>()
 
     init {

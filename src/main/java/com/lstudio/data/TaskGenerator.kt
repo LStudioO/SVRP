@@ -6,7 +6,7 @@ import java.util.*
 
 class TaskGenerator {
     fun generate(cityCount: Int, startDepots: Int, endDepots: Int) {
-        val weigths = Array(cityCount) { DoubleArray(cityCount) }
+        val weights = Array(cityCount) { DoubleArray(cityCount) }
 
         val points = ArrayList<Point>()
 
@@ -18,7 +18,7 @@ class TaskGenerator {
 
         for (i in 0 until cityCount)
             for (j in 0 until cityCount) {
-                weigths[i][j] = points[i].distance(points[j])
+                weights[i][j] = points[i].distance(points[j])
             }
 
         val content = StringBuilder()
@@ -35,9 +35,9 @@ class TaskGenerator {
         for (i in 0 until cityCount) {
             var line = ""
             for (j in 0 until cityCount - 1) {
-                line += "${weigths[i][j]} "
+                line += "${weights[i][j]} "
             }
-            line += "${weigths[i][cityCount - 1]}"
+            line += "${weights[i][cityCount - 1]}"
             content.append("$line\n")
         }
         content.append("START_DEPOT_SECTION\n")

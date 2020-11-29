@@ -7,7 +7,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class BruteforceSolver internal constructor(
-    startDepots: IntArray, private val endDepots: HashMap<Int, Int>,
+    startDepots: IntArray,
+    private val endDepots: HashMap<Int, Int>,
     private val distances: Array<DoubleArray>
 ) {
     private val noOfVehicles: Int = startDepots.size
@@ -26,7 +27,6 @@ class BruteforceSolver internal constructor(
     }
 
     internal fun solve(): BruteforceSolver {
-        val vehicles = 3
         val customerIds: List<Int> = customerIndices.toList()
         val endDepotsList = ArrayList<Int>()
         for (item in endDepots) {
@@ -36,7 +36,7 @@ class BruteforceSolver internal constructor(
                 endDepotsList.add(key)
         }
         val startTimeMillis = System.currentTimeMillis()
-        val shortestRouteSet = shortestRouteWithPartitions(customerIds, vehicles, startDepotsIndices, endDepotsList)
+        val shortestRouteSet = shortestRouteWithPartitions(customerIds, noOfVehicles, startDepotsIndices, endDepotsList)
         println("Solution time: ${(System.currentTimeMillis() - startTimeMillis)} milliseconds")
         System.out.printf("Shortest distance: %.1f\n", maxLengthForRoutes(shortestRouteSet))
         println("Shortest route: $shortestRouteSet")
@@ -46,14 +46,14 @@ class BruteforceSolver internal constructor(
     /**
      *Distance between first and last and consecutive elements of a list.
      **/
-    fun distance(x: Int, y: Int): Double {
+    private fun distance(x: Int, y: Int): Double {
         return distances[x][y]
     }
 
     /**
      * Distance between first and last and consecutive elements of a list
      */
-    fun routeLength(route: List<Int>): Double {
+    private fun routeLength(route: List<Int>): Double {
         var sum = 0.0
         for (i in 1 until route.size) sum += distance(route[i], route[i - 1])
         return sum
@@ -62,16 +62,16 @@ class BruteforceSolver internal constructor(
     /**
      * Returns minimum from a list based on route length
      */
-    fun shortestRoute(routes: ArrayList<ArrayList<Int>>): ArrayList<Int> {
+    private fun shortestRoute(routes: ArrayList<ArrayList<Int>>): List<Int> {
         return routes.minBy {
             routeLength(it)
-        }!!
+        }.orEmpty()
     }
 
     /**
      * Return all permutations of a list, each starting with the first item
      */
-    fun allRoutes(original: ArrayList<Int>): ArrayList<ArrayList<Int>> {
+    private fun allRoutes(original: ArrayList<Int>): ArrayList<ArrayList<Int>> {
         if (original.size < 2) {
             return arrayListOf(original)
         } else {
@@ -88,7 +88,7 @@ class BruteforceSolver internal constructor(
     /**
      * Return maximum from a given route list
      */
-    fun maxLengthForRoutes(routeList: List<List<Int>>): Double {
+    private fun maxLengthForRoutes(routeList: List<List<Int>>): Double {
         val routeLengths = ArrayList<Double>()
         return routeList.mapTo(routeLengths) {
             routeLength(it)
@@ -100,9 +100,11 @@ class BruteforceSolver internal constructor(
      * with minimum distance cost. Note the total time is always equal to
      * the max time taken by any single vehicle
      */
-    fun shortestRouteWithPartitions(
-        locationIds: List<Int>, partitions: Int,
-        startDepots: List<Int>, endDepots: List<Int>
+    private fun shortestRouteWithPartitions(
+        locationIds: List<Int>,
+        partitions: Int,
+        startDepots: List<Int>,
+        endDepots: List<Int>
     ): List<List<Int>> {
         val short = allShortRoutesWithPartitions(locationIds, partitions, startDepots, endDepots)
         return short.distinct()
@@ -115,7 +117,7 @@ class BruteforceSolver internal constructor(
      * Our partitions represent number of vehicles. This function yields
      * an optimal path for each vehicle given the destinations assigned to it
      */
-    fun allShortRoutesWithPartitions(
+    private fun allShortRoutesWithPartitions(
         seq: List<Int>,
         vehicles: Int,
         startDepots: List<Int>,
